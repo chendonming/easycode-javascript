@@ -2,8 +2,8 @@
   <div class="home">
     <el-container>
       <el-aside width="200px">
-        <ul>
-          <li>生成实体类（测试）</li>
+        <ul class="menu">
+          <li class="menu-item active">生成实体类（测试）</li>
         </ul>
       </el-aside>
       <el-main>
@@ -74,3 +74,19 @@ export default {
   }
 }
 </script>
+
+<style lang="less">
+.home {
+  .menu {
+    .menu-item {
+      padding: 10px;
+      cursor: pointer;
+
+      &.active {
+        background: #409EFF;
+        color: #fff;
+      }
+    }
+  }
+}
+</style>

@@ -10,9 +10,8 @@ const routes = [
     component: Home,
     children: [
       {
-        path: 'EntityClassGeneration',
-        redirect: true,
-        name: 'EntityClassGeneration'
+        path: '',
+        component: () => import('@/views/EntityClassGeneration')
       }
     ]
   },
