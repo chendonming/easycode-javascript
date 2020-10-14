@@ -7,8 +7,14 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    component: Home,
+    children: [
+      {
+        path: 'EntityClassGeneration',
+        redirect: true,
+        name: 'EntityClassGeneration'
+      }
+    ]
   },
   {
     path: '/about',
