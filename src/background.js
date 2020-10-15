@@ -1,8 +1,8 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu, ipcMain } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import mysql from 'mysql2'
+import api from './api'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -25,13 +25,14 @@ protocol.registerSchemesAsPrivileged([
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1220,
+    height: 730,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
-    }
+    },
+    show: false
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -46,6 +47,10 @@ function createWindow () {
 
   win.on('closed', () => {
     win = null
+  })
+
+  win.on('ready-to-show', () => {
+    win.show()
   })
 }
 
@@ -96,16 +101,8 @@ app.on('ready', async () => {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 
-  ipcMain.on('connectToTheDatabase', (e, data) => {
-    connection = mysql.createConnection(data)
-    if (connection) {
-      win.webContents.send('connection.success')
-    } else {
-      win.webContents.send('connection.failed')
-    }
-  })
-
   createWindow()
+  api(win, win.webContents)
 })
 
 // Exit cleanly on request from parent process in development mode.

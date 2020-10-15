@@ -56,3 +56,8 @@ table {
 .el-form-item__content {
   text-align: left;
 }
+
+.atag {
+  color: #409EFF;
+  cursor: pointer;
+}

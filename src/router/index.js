@@ -10,8 +10,12 @@ const routes = [
     component: Home,
     children: [
       {
-        path: '',
+        path: '/EntityClassGeneration',
         component: () => import('@/views/EntityClassGeneration')
+      },
+      {
+        path: '/CustomBuild',
+        component: () => import('@/views/CustomBuild')
       }
     ]
   },
