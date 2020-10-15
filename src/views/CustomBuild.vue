@@ -1,13 +1,13 @@
 <template>
   <div class="CustomBuild">
     <el-row>
-      <el-form inline size="small" label-width="80px" :model="form">
-        <el-form-item label="数据库" prop="databases">
+      <el-form inline size="small" label-width="80px" :model="form" ref="form">
+        <el-form-item label="数据库" prop="databases" required>
           <el-select v-model="form.database" filterable>
             <el-option v-for="(item, index) in databaseList" :value="item" :key="index"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="表" prop="table">
+        <el-form-item label="表" prop="table" required>
             <el-select v-model="form.table">
               <el-option v-for="(item, index) in tableList" :value="item" :key="index"></el-option>
             </el-select>
@@ -54,7 +54,11 @@ export default {
   },
   methods: {
     query () {
+      this.$refs.form.validate(valid => {
+        if (valid) {
 
+        }
+      })
     }
   }
 }

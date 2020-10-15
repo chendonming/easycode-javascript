@@ -3,7 +3,7 @@ import fs from 'fs'
 import mysql from 'mysql2'
 import ejs from 'ejs'
 
-function queryAllTables(connection, db) {
+function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
     const json = {}
     if (connection) {
@@ -111,7 +111,7 @@ export default function (win, renderer) {
     }
   })
 
-  function gennerateEjsFile(data, tableName) {
+  function gennerateEjsFile (data, tableName) {
     const newTableName = data.tableName ? data.tableName.toLocaleUpperCase() : tableName
     const newData = {
       ...data,
@@ -156,6 +156,36 @@ export default function (win, renderer) {
           })
         }
       })
+    }
+  })
+
+  // 显示表中所有字段
+  ipcMain.on('displayField', (e, db, table) => {
+    const json = {}
+    if (connection) {
+      connection.query(`use ${db}`, (err, res) => {
+        if (err) {
+          json.code = -1
+          json.msg = 'err: ' + err.message
+          renderer.send('displayField', json)
+        } else {
+          connection.query(`show full columns from ${table}`, (err, res) => {
+            if (err) {
+              json.code = -1
+              json.msg = 'err: ' + err.message
+              renderer.send('displayField', json)
+            } else {
+              json.code = 200
+              json.data = res
+              renderer.send('displayField', json)
+            }
+          })
+        }
+      })
+    } else {
+      json.code = -1
+      json.msg = '请链接数据库再做此操作'
+      renderer.send('displayField', json)
     }
   })
 }
