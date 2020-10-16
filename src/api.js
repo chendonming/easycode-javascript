@@ -2,6 +2,8 @@ import { ipcMain, app } from 'electron'
 import fs from 'fs'
 import mysql from 'mysql2'
 import ejs from 'ejs'
+import { v4 as uuidv4 } from 'uuid'
+import { exec } from 'child_process'
 
 function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
@@ -91,7 +93,7 @@ export default function (win, renderer) {
           json.msg = '查询数据库失败: ' + err.message
         } else {
           json.code = 200
-          json.data = res.map(v => v.Database).filter(v => ['information schema', 'performance schema', 'mysql'].indexOf(v) === -1)
+          json.data = res.map(v => v.Database).filter(v => ['information_schema', 'performance_schema', 'mysql'].indexOf(v) === -1)
         }
         renderer.send('showDatabase', json)
       })
@@ -111,6 +113,7 @@ export default function (win, renderer) {
     }
   })
 
+  // 根据Ejs生成实体类文件 (Test)
   function gennerateEjsFile (data, tableName) {
     const newTableName = data.tableName ? data.tableName.toLocaleUpperCase() : tableName
     const newData = {
@@ -159,6 +162,33 @@ export default function (win, renderer) {
     }
   })
 
+  ipcMain.on('generateCustomFiles', (e, data) => {
+    // 使用固定文件位置
+    const filepath = app.getPath('userData') + '\\files\\' + uuidv4() + '.' + data.suffix
+    ejs.renderFile(data.templateName, data, (err, str) => {
+      if (err) {
+        renderer.send('generateEntityFiles', {
+          code: -1,
+          msg: 'err: ' + err.message
+        })
+      } else {
+        fs.writeFile(filepath, str, { flag: 'a' }, (err, datas) => {
+          if (err) {
+            renderer.send('generateCustomFiles', {
+              code: -1,
+              msg: 'err: ' + err.message
+            })
+          } else {
+            renderer.send('generateCustomFiles', {
+              code: 200,
+              data: filepath
+            })
+          }
+        })
+      }
+    })
+  })
+
   // 显示表中所有字段
   ipcMain.on('displayField', (e, db, table) => {
     const json = {}
@@ -187,5 +217,15 @@ export default function (win, renderer) {
       json.msg = '请链接数据库再做此操作'
       renderer.send('displayField', json)
     }
+  })
+
+  // 调用vscode
+  ipcMain.on('transferCode', (e, data) => {
+    exec(`code ${data}`)
+  })
+
+  // 调用资源管理器
+  ipcMain.on('transferExplorer', (e, data) => {
+    exec(`explorer /select,${data}`)
   })
 }

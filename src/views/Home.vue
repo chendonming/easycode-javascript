@@ -3,7 +3,8 @@
     <el-container>
       <el-aside width="200px">
         <ul class="menu">
-          <li class="menu-item" :class="{'active': index === currentIndex}" @click="jumpRoute(item.path, index)" v-for="(item, index) in menuList"
+          <li class="menu-item" :class="{'active': index === currentIndex}" @click="jumpRoute(item.path, index)"
+              v-for="(item, index) in menuList"
               :key="index">{{ item.label }}
           </li>
         </ul>
@@ -38,6 +39,12 @@
         这是一些公告说明
       </div>
     </el-dialog>
+
+    <el-dialog :visible.sync="settingsVisible" title="设置" width="40%" :close-on-click-modal="false">
+      <e-form :model="settingForm">
+
+      </e-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,6 +56,7 @@ export default {
   data () {
     return {
       visible: false,
+      settingsVisible: false,
       form: {
         host: '127.0.0.1',
         port: '3306',
@@ -71,6 +79,10 @@ export default {
     }
   },
   created () {
+    ipcRenderer.on('settings', () => {
+      this.settingsVisible = true
+    })
+
     ipcRenderer.on('connection', () => {
       this.visible = true
     })
@@ -107,6 +119,10 @@ export default {
 
 <style lang="less">
 .home {
+  .el-main {
+    padding-top: 0;
+  }
+
   .menu {
     .menu-item {
       padding: 10px;

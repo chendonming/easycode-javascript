@@ -93,6 +93,13 @@ app.on('ready', async () => {
           click () {
             win.webContents.send('connection')
           }
+        },
+        {
+          label: '&Settings',
+          accelerator: 'ctrl+alt+s',
+          click () {
+            win.webContents.send('settings')
+          }
         }
       ]
     }
