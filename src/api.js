@@ -1,4 +1,4 @@
-import { ipcMain, app } from 'electron'
+import { ipcMain, app, dialog } from 'electron'
 import fs from 'fs'
 import mysql from 'mysql2'
 import ejs from 'ejs'
@@ -227,5 +227,13 @@ export default function (win, renderer) {
   // 调用资源管理器
   ipcMain.on('transferExplorer', (e, data) => {
     exec(`explorer /select,${data}`)
+  })
+
+  // 打开文件夹选择框
+  ipcMain.on('openDirectory', (e, json) => {
+    dialog.showOpenDialog({
+      title: json.title,
+      properties: ['openDirectory']
+    })
   })
 }

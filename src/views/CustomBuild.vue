@@ -105,7 +105,7 @@ export default {
       success: false,
       successFilePath: '',
       generateForm: {
-        suffix: ''
+        suffix: 'vue'
       }
     }
   },

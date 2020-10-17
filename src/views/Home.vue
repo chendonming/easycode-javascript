@@ -40,10 +40,18 @@
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="settingsVisible" title="设置" width="40%" :close-on-click-modal="false">
-      <e-form :model="settingForm">
-
-      </e-form>
+    <el-dialog :visible.sync="settingsVisible" width="40%" :close-on-click-modal="false">
+      <template slot="title">
+        设置 <el-button type="primary" style="margin-left: 70px;" size="mini">确定</el-button>
+      </template>
+      <el-form :model="settingForm" size="small">
+        <el-form-item label="默认的模板目录" prop="templateDirectory">
+          <el-input :value="settingForm.templateDirectory" readonly @click.native="openDialog"></el-input>
+        </el-form-item>
+        <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
+          <el-input :value="settingForm.fileGenerationDirectory" readonly @click.native="openDialog"></el-input>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -75,7 +83,11 @@ export default {
           path: 'CustomBuild'
         }
       ],
-      currentIndex: -1
+      currentIndex: -1,
+      settingForm: {
+        fileGenerationDirectory: '',
+        templateDirectory: ''
+      }
     }
   },
   created () {
@@ -112,6 +124,11 @@ export default {
     jumpRoute (path, index) {
       this.$router.push({ path: '/' + path })
       this.currentIndex = index
+    },
+    openDialog () {
+      ipcRenderer.send('openDirectory', {
+        title: '选择默认模板目录'
+      })
     }
   }
 }
