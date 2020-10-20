@@ -42,7 +42,12 @@
             prop="Type"
             label="类型">
           </el-table-column>
-          <el-table-column label="操作" width="300px">
+          <el-table-column label="操作" width="400px">
+            <template slot="header">
+              <el-button @click="counterElection('insert')" size="small" type="default">反选insert</el-button>
+              <el-button @click="counterElection('search')" size="small" type="default">反选search</el-button>
+              <el-button @click="counterElection('query')" size="small" type="default">反选query</el-button>
+            </template>
             <template slot-scope="scope">
               <el-checkbox-group v-model="scope.row.operating">
                 <el-checkbox label="insert"></el-checkbox>
@@ -106,7 +111,10 @@ export default {
       successFilePath: '',
       generateForm: {
         suffix: 'vue'
-      }
+      },
+      counterElectionQuery: true,
+      counterElectionInsert: true,
+      counterElectionSearch: true
     }
   },
   watch: {
@@ -114,6 +122,15 @@ export default {
       handler (val) {
         ipcRenderer.send('queryAllTables', val)
       }
+    },
+    counterElectionQuery () {
+      this.counterElection('query')
+    },
+    counterElectionInsert () {
+      this.counterElection('insert')
+    },
+    counterElectionSearch () {
+      this.counterElection('search')
     }
   },
   created () {
@@ -171,6 +188,17 @@ export default {
     })
   },
   methods: {
+    counterElection (pos) {
+      this.tableData = this.tableData.map(v => {
+        const index = v.operating.indexOf(pos)
+        if (v.operating.indexOf(pos) !== -1) {
+          v.operating.splice(index, 1)
+        } else {
+          v.operating.push(pos)
+        }
+        return v
+      })
+    },
     // 生成
     generate () {
       // 组装数据
