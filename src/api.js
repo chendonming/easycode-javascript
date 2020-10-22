@@ -4,6 +4,7 @@ import mysql from 'mysql2'
 import ejs from 'ejs'
 import { v4 as uuidv4 } from 'uuid'
 import { exec } from 'child_process'
+import localstorage from 'electron-localstorage'
 
 function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
@@ -76,11 +77,11 @@ export default function (win, renderer) {
   })
 
   ipcMain.on('connectToTheDatabase', (e, data) => {
-    connection = mysql.createConnection(data)
-    if (connection) {
+    try {
+      connection = mysql.createConnection(data)
       win.webContents.send('connection.success')
-    } else {
-      win.webContents.send('connection.failed')
+    } catch (err) {
+      win.webContents.send('connection.failed', err)
     }
   })
 
@@ -164,7 +165,13 @@ export default function (win, renderer) {
 
   ipcMain.on('generateCustomFiles', (e, data) => {
     // 使用固定文件位置
-    const filepath = app.getPath('userData') + '\\files\\' + uuidv4() + '.' + data.suffix
+    const setting = localstorage.getItem('setting')
+    let filepath
+    if (setting && setting.fileGenerationDirectory) {
+      filepath = setting.fileGenerationDirectory + '\\' + uuidv4() + '.' + data.suffix
+    } else {
+      filepath = app.getPath('userData') + '\\files\\' + uuidv4() + '.' + data.suffix
+    }
     ejs.renderFile(data.templateName, data, (err, str) => {
       if (err) {
         renderer.send('generateEntityFiles', {
@@ -230,10 +237,24 @@ export default function (win, renderer) {
   })
 
   // 打开文件夹选择框
-  ipcMain.on('openDirectory', (e, json) => {
-    dialog.showOpenDialog({
-      title: json.title,
-      properties: ['openDirectory']
+  ipcMain.on('openDirectory', (e, data) => {
+    const json = dialog.showOpenDialog({
+      title: data.title,
+      properties: ['openDirectory'],
+      message: '输入框的信息测试'
     })
+
+    json.then(res => {
+      renderer.send('openDirectory', res.filePaths)
+    })
+  })
+
+  ipcMain.on('saveSetting', (e, json) => {
+    localstorage.setItem('setting', json)
+    renderer.send('saveSetting', { code: 200 })
+  })
+
+  ipcMain.on('getSetting', () => {
+    renderer.send('getSetting', localstorage.getItem('setting'))
   })
 }

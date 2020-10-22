@@ -49,14 +49,18 @@
           @click="connectToTheDatabase"
           v-loading="loading"
         >确定
-        </el-button
-        >
+        </el-button>
         <el-button size="small" @click="visible = false">取消</el-button>
       </template>
     </el-dialog>
 
     <el-dialog :visible.sync="visibleDesc" title="说明" width="40%">
       <div>这是一些公告说明</div>
+      <template slot="footer">
+        <div style="display: flex;justify-content: space-between;">
+          <el-checkbox v-model="settingForm.noTip">下次不在显示</el-checkbox>
+        </div>
+      </template>
     </el-dialog>
 
     <el-dialog
@@ -70,14 +74,14 @@
           <el-input
             :value="settingForm.templateDirectory"
             readonly
-            @click.native="openDialog"
+            @click.native="openDialog('templateDirectory')"
           ></el-input>
         </el-form-item>
         <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
           <el-input
             :value="settingForm.fileGenerationDirectory"
             readonly
-            @click.native="openDialog"
+            @click.native="openDialog('fileGenerationDirectory')"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -119,8 +123,10 @@ export default {
       currentIndex: -1,
       settingForm: {
         fileGenerationDirectory: '',
-        templateDirectory: ''
-      }
+        templateDirectory: '',
+        noTip: false
+      },
+      currentDirectoryType: ''
     }
   },
   created () {
@@ -138,14 +144,29 @@ export default {
       this.visible = false
     })
 
-    ipcRenderer.on('connection.failed', () => {
-      this.$message.error('连接失败')
+    ipcRenderer.on('connection.failed', (e, json) => {
+      this.$message.error('连接失败: ', json.message)
       this.loading = false
     })
 
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 'r') {
         window.location.reload()
+      }
+    })
+
+    // 选择默认模板目录
+    ipcRenderer.on('openDirectory', (e, json) => {
+      if (json.length > 0) {
+        this.$set(this.settingForm, this.currentDirectoryType, json[0])
+      }
+    })
+
+    ipcRenderer.send('getSetting')
+
+    ipcRenderer.on('getSetting', (e, json) => {
+      if (json && JSON.stringify(json) !== '{}') {
+        this.settingForm = json
       }
     })
   },
@@ -158,12 +179,15 @@ export default {
       this.$router.push({ path: '/' + path })
       this.currentIndex = index
     },
-    openDialog () {
+    openDialog (type) {
+      this.currentDirectoryType = type
       ipcRenderer.send('openDirectory', {
         title: '选择默认模板目录'
       })
     },
     submit () {
+      ipcRenderer.send('saveSetting', this.settingForm)
+      this.settingsVisible = false
     }
   }
 }

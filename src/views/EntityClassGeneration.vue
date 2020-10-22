@@ -41,7 +41,6 @@
  * 生成实体类（测试）
  */
 import { ipcRenderer, shell } from 'electron'
-
 export default {
   name: 'EntityClassGeneration',
   data () {
