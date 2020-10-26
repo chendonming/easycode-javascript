@@ -15,6 +15,7 @@ interface CRUD {
     searchList: Array<Field> // 搜索字段集合
     suffix: string // 后缀
     templateName: string // 模板地址
+    _: Object // lodash对象， 可以在ejs中使用lodash!!
 }
 
 // 字段信息
