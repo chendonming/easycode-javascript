@@ -5,6 +5,7 @@ import ejs from 'ejs'
 import { v4 as uuidv4 } from 'uuid'
 import { exec } from 'child_process'
 import localstorage from 'electron-localstorage'
+import path from 'path'
 
 function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
@@ -76,12 +77,35 @@ export default function (win, renderer) {
     })
   })
 
+  ipcMain.on('localTemplateFile', () => {
+    const folder = path.join(__dirname, '../static/ejs/')
+    fs.access(folder, err => {
+      if (!err) {
+        fs.readdir(folder, (err, fileList) => {
+          if (!err) {
+            renderer.send('localTemplateFile', fileList.map(v => ({
+              title: v,
+              value: folder + v
+            })))
+          }
+        })
+      }
+    })
+  })
+
   ipcMain.on('connectToTheDatabase', (e, data) => {
     try {
+      delete data.tryConnection
       connection = mysql.createConnection(data)
-      win.webContents.send('connection.success')
+      connection.ping((err) => {
+        if (err) {
+          win.webContents.send('connection.failed', { msg: '请启动mysql服务!' + err.message })
+        } else {
+          win.webContents.send('connection.success')
+        }
+      })
     } catch (err) {
-      win.webContents.send('connection.failed', err)
+      win.webContents.send('connection.failed', { msg: err.message })
     }
   })
 
@@ -166,11 +190,12 @@ export default function (win, renderer) {
   ipcMain.on('generateCustomFiles', (e, data) => {
     // 使用固定文件位置
     const setting = localstorage.getItem('setting')
+    const name = data.name || uuidv4()
     let filepath
     if (setting && setting.fileGenerationDirectory) {
-      filepath = setting.fileGenerationDirectory + '\\' + uuidv4() + '.' + data.suffix
+      filepath = setting.fileGenerationDirectory + '\\' + name + '.' + data.suffix
     } else {
-      filepath = app.getPath('userData') + '\\files\\' + uuidv4() + '.' + data.suffix
+      filepath = app.getPath('userData') + '\\' + name + '.' + data.suffix
     }
     ejs.renderFile(data.templateName, data, (err, str) => {
       if (err) {
@@ -179,11 +204,11 @@ export default function (win, renderer) {
           msg: 'err: ' + err.message
         })
       } else {
-        fs.writeFile(filepath, str, { flag: 'a' }, (err, datas) => {
+        // flag: a 不存在该文件则会创建该文件
+        fs.writeFile(filepath, str, { flag: 'ax' }, (err, datas) => {
           if (err) {
             renderer.send('generateCustomFiles', {
-              code: -1,
-              msg: 'err: ' + err.message
+              code: err.code
             })
           } else {
             renderer.send('generateCustomFiles', {
@@ -256,5 +281,29 @@ export default function (win, renderer) {
 
   ipcMain.on('getSetting', () => {
     renderer.send('getSetting', localstorage.getItem('setting'))
+  })
+
+  // 保存数据源
+  ipcMain.on('saveDataSource', (e, json) => {
+    localstorage.setItem('dataSource', json)
+  })
+
+  // 取出数据源
+  ipcMain.on('getDataSource', () => {
+    renderer.send('getDataSource', localstorage.getItem('dataSource'))
+  })
+
+  // 查询文档
+  ipcMain.on('consultYourDocumentation', (e, id) => {
+    const file = path.join(__dirname, '../static/document', id)
+    fs.access(file, err => {
+      if (!err) {
+        fs.readFile(file, 'utf8', (err, data) => {
+          if (!err) {
+            renderer.send('consultYourDocumentation', data)
+          }
+        })
+      }
+    })
   })
 }

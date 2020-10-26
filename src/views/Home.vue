@@ -41,6 +41,9 @@
             type="password"
           ></el-input>
         </el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="form.tryConnection">下次尝试使用缓存直接登录数据库</el-checkbox>
+        </el-form-item>
       </el-form>
       <template slot="footer">
         <el-button
@@ -53,15 +56,15 @@
         <el-button size="small" @click="visible = false">取消</el-button>
       </template>
     </el-dialog>
-
-    <el-dialog :visible.sync="visibleDesc" title="说明" width="40%">
-      <div>这是一些公告说明</div>
-      <template slot="footer">
-        <div style="display: flex;justify-content: space-between;">
-          <el-checkbox v-model="settingForm.noTip">下次不在显示</el-checkbox>
-        </div>
-      </template>
-    </el-dialog>
+    <!-- TODO: 暂时没有公告 -->
+    <!--    <el-dialog :visible.sync="visibleDesc" title="说明" width="40%">-->
+    <!--      <div>这是一些公告说明</div>-->
+    <!--      <template slot="footer">-->
+    <!--        <div style="display: flex;justify-content: space-between;">-->
+    <!--          <el-checkbox v-model="settingForm.noTip">下次不在显示</el-checkbox>-->
+    <!--        </div>-->
+    <!--      </template>-->
+    <!--    </el-dialog>-->
 
     <el-dialog
       :visible.sync="settingsVisible"
@@ -70,13 +73,14 @@
       :close-on-click-modal="false"
     >
       <el-form :model="settingForm" size="small">
-        <el-form-item label="默认的模板目录" prop="templateDirectory">
-          <el-input
-            :value="settingForm.templateDirectory"
-            readonly
-            @click.native="openDialog('templateDirectory')"
-          ></el-input>
-        </el-form-item>
+        <!--        TODO: 目前没有实现-->
+        <!--        <el-form-item label="默认的模板目录" prop="templateDirectory">-->
+        <!--          <el-input-->
+        <!--            :value="settingForm.templateDirectory"-->
+        <!--            readonly-->
+        <!--            @click.native="openDialog('templateDirectory')"-->
+        <!--          ></el-input>-->
+        <!--        </el-form-item>-->
         <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
           <el-input
             :value="settingForm.fileGenerationDirectory"
@@ -95,6 +99,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'Home',
@@ -103,28 +108,24 @@ export default {
       visible: false,
       settingsVisible: false,
       form: {
-        host: '127.0.0.1',
-        port: '3306',
-        user: 'root',
-        password: '123456'
+        host: '',
+        port: '',
+        user: '',
+        password: '',
+        tryConnection: false
       },
       loading: false,
       visibleDesc: true,
       menuList: [
         {
-          label: '生成实体类（测试）',
-          path: 'EntityClassGeneration'
-        },
-        {
-          label: '前端自定义生成',
+          label: '前端CRUD生成',
           path: 'CustomBuild'
         }
       ],
       currentIndex: -1,
       settingForm: {
         fileGenerationDirectory: '',
-        templateDirectory: '',
-        noTip: false
+        templateDirectory: ''
       },
       currentDirectoryType: ''
     }
@@ -139,13 +140,14 @@ export default {
     })
 
     ipcRenderer.on('connection.success', () => {
-      this.$message.success('连接成功')
+      this.$notify.success('数据库连接成功')
       this.loading = false
       this.visible = false
+      this.setConnection(true)
     })
 
     ipcRenderer.on('connection.failed', (e, json) => {
-      this.$message.error('连接失败: ', json.message)
+      this.$notify.error('连接失败: ' + json.msg)
       this.loading = false
     })
 
@@ -169,11 +171,29 @@ export default {
         this.settingForm = json
       }
     })
+
+    ipcRenderer.send('getDataSource')
+    ipcRenderer.on('getDataSource', (e, json) => {
+      if (json && JSON.stringify(json) !== '{}') {
+        this.form = json
+        if (this.form.tryConnection) {
+          this.connectToTheDatabase()
+        }
+      }
+    })
+
+    ipcRenderer.on('about', (e, json) => {
+      if (json) {
+        this.$router.push({ path: `/DocumentText?id=${json.id}&title=${json.title}` })
+      }
+    })
   },
   methods: {
+    ...mapMutations(['setConnection']),
     async connectToTheDatabase () {
       this.loading = true
       ipcRenderer.send('connectToTheDatabase', this.form)
+      ipcRenderer.send('saveDataSource', this.form)
     },
     jumpRoute (path, index) {
       this.$router.push({ path: '/' + path })

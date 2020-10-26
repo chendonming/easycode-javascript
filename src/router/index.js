@@ -20,6 +20,10 @@ const routes = [
     ]
   },
   {
+    path: '/DocumentText',
+    component: () => import('@/views/DocumentText')
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting

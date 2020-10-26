@@ -5,11 +5,17 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    // 是否连接数据库
+    connection: false
   },
   mutations: {
+    setConnection (state, bool) {
+      state.connection = bool
+    }
   },
-  actions: {
+  getters: {
+    connection: state => state.connection
   },
-  modules: {
-  }
+  actions: {},
+  modules: {}
 })

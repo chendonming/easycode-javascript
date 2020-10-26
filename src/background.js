@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu } from 'electron'
+import { app, protocol, BrowserWindow, Menu, shell } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import api from './api'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -85,7 +85,7 @@ app.on('ready', async () => {
   }
   const template = [
     {
-      label: '&connection',
+      label: '&Connection',
       submenu: [
         {
           label: '连接数据库',
@@ -100,6 +100,22 @@ app.on('ready', async () => {
           click () {
             win.webContents.send('settings')
           }
+        }
+      ]
+    },
+    {
+      label: '&About',
+      submenu: [
+        {
+          label: '前端CRUD',
+          submenu: [
+            {
+              label: '使用手册',
+              click () {
+                win.webContents.send('about', { id: 'frontCRUD.md', title: '前端CRUD手册' })
+              }
+            }
+          ]
         }
       ]
     }

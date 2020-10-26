@@ -1,6 +1,6 @@
 {
   "name": "easycode-javascript",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -17,7 +17,9 @@
     "ejs": "^3.1.5",
     "electron-localstorage": "^1.0.5",
     "element-ui": "^2.13.2",
+    "github-markdown-css": "^4.0.0",
     "lodash": "^4.17.20",
+    "marked": "^1.2.2",
     "mysql2": "^2.2.5",
     "uuid": "^8.3.1",
     "vue": "^2.6.11",

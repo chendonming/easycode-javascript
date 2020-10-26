@@ -59,12 +59,17 @@
         </el-table>
       </div>
       <div class="file-select" v-show="active === 1">
+        <el-select v-model="localFile" size="small" placeholder="预设模板文件" clearable style="margin-right: 10px;">
+          <el-option v-for="(item, index) in localTemplateFile" :key="index" :label="item.title"
+                     :value="item.value"></el-option>
+        </el-select>
         <el-upload
           class="upload-demo"
           action="test"
           :limit="1"
           :auto-upload="false"
           :on-change="handleChange"
+          :on-remove="onRemove"
           accept=".ejs"
           :file-list="fileList">
           <el-button size="small" type="primary">选择ejs模板文件</el-button>
@@ -77,6 +82,9 @@
           <el-form :model="generateForm" size="small">
             <el-form-item label="后缀名" prop="suffix">
               <el-input v-model="generateForm.suffix"></el-input>
+            </el-form-item>
+            <el-form-item label="文件名" prop="name">
+              <el-input v-model="generateForm.name" placeholder="不填，则会使用uuid"></el-input>
             </el-form-item>
           </el-form>
         </div>
@@ -93,6 +101,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'CustomBuild',
@@ -114,7 +123,10 @@ export default {
       },
       counterElectionQuery: true,
       counterElectionInsert: true,
-      counterElectionSearch: true
+      counterElectionSearch: true,
+      // 本地模板文件
+      localTemplateFile: [],
+      localFile: ''
     }
   },
   watch: {
@@ -122,6 +134,9 @@ export default {
       handler (val) {
         ipcRenderer.send('queryAllTables', val)
       }
+    },
+    connection () {
+      ipcRenderer.send('showDatabase')
     },
     counterElectionQuery () {
       this.counterElection('query')
@@ -137,7 +152,7 @@ export default {
     ipcRenderer.send('showDatabase')
     ipcRenderer.on('showDatabase', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        this.$notify.error(json.msg)
       } else {
         this.databaseList = json.data
       }
@@ -145,7 +160,7 @@ export default {
 
     ipcRenderer.on('queryAllTables', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        this.$notify.error(json.msg)
       } else {
         this.tableList = json.data
       }
@@ -153,7 +168,7 @@ export default {
 
     ipcRenderer.on('displayField', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        this.$notify.error(json.msg)
       } else {
         this.tableData = json.data.map(v => ({
           ...v,
@@ -164,7 +179,7 @@ export default {
 
     ipcRenderer.on('queryAllTables', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        this.$notify.error(json.msg)
       } else {
         this.tableList = json.data
       }
@@ -172,20 +187,34 @@ export default {
 
     ipcRenderer.on('generateEntityFiles', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        this.$notify.error(json.msg)
       } else {
-        this.$message.success('成功!')
+        this.$notify.success('成功!')
       }
     })
 
     ipcRenderer.on('generateCustomFiles', (e, json) => {
       if (json.code !== 200) {
-        this.$message.error(json.msg)
+        if (json.code === 'EEXIST') {
+          this.$notify.error('文件已存在')
+        } else {
+          this.$notify.error(json.msg)
+        }
       } else {
-        this.$message.success('成功!')
+        this.$notify.success('成功!')
         this.successFilePath = json.data
       }
     })
+
+    ipcRenderer.send('localTemplateFile')
+    ipcRenderer.on('localTemplateFile', (e, json) => {
+      if (json && json.length > 0) {
+        this.localTemplateFile = json
+      }
+    })
+  },
+  computed: {
+    ...mapGetters(['connection'])
   },
   methods: {
     counterElection (pos) {
@@ -210,7 +239,8 @@ export default {
         queryList,
         searchList,
         suffix: this.generateForm.suffix,
-        templateName: this.fileList[0].raw.path
+        templateName: this.localFile || this.fileList[0].raw.path,
+        name: this.generateForm.name
       }
       ipcRenderer.send('generateCustomFiles', json)
     },
@@ -225,14 +255,21 @@ export default {
       this.active--
     },
     openWithCode () {
-      ipcRenderer.send('transferCode', this.successFilePath)
+      if (this.successFilePath) {
+        ipcRenderer.send('transferCode', this.successFilePath)
+      } else {
+        this.$notify.error('请先生成文件')
+      }
     },
     openWithExplorer () {
-      ipcRenderer.send('transferExplorer', this.successFilePath)
+      if (this.successFilePath) {
+        ipcRenderer.send('transferExplorer', this.successFilePath)
+      } else {
+        this.$notify.error('请先生成文件')
+      }
     },
     nextStep () {
       // 验证
-      console.log(this.fileList)
       if (this.active === 0) {
         const valid = this.tableData.some(v => v.operating.length !== 0)
         if (valid) {
@@ -245,7 +282,9 @@ export default {
           })
         }
       } else if (this.active === 1) {
-        if (this.fileList.length === 0) {
+        console.log('fileList------------>', this.fileList)
+        console.log('localFile---------->', this.localFile)
+        if (this.fileList.length === 0 && !this.localFile) {
           this.$notify.error({
             title: '提示',
             message: '请选择一个ejs模板'
@@ -267,6 +306,9 @@ export default {
       } else {
         this.fileList = fileList
       }
+    },
+    onRemove () {
+      this.fileList = []
     }
   }
 }
