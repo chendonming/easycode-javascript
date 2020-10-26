@@ -3,22 +3,22 @@
   <div>
     <el-form :model="searchForm" inline>
       <%_ searchList.forEach(function(data) { -%>
-        <el-form-item label="<%=data.Comment %>" prop="<%=data.Field %>">
+        <el-form-item label="<%=data.Comment %>" prop="<%=_.camelCase(data.Field) %>">
         <%_ if(data.Type.indexOf('varchar') !== -1) { -%>
-          <el-input v-model="searchForm.<%=data.Field %>"></el-input>
+          <el-input v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-input>
         <%_ }-%>
         <%_ if(data.Type.indexOf('date') !== -1) { -%>
           <el-date-picker
             type="date"
             value-format="yyyy-MM-dd HH:mm:ss"
-            v-model="searchForm.<%=data.Field %>"></el-date-picker>
+            v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-date-picker>
         <%_ } -%>
         </el-form-item>
       <%_ }); -%>
     </el-form>
     <el-table :data="tableData">
       <%_ queryList.forEach(function(data) { -%>
-        <el-table-column label="<%=data.Comment %>" prop="<%=data.Field %>"></el-table-column>
+        <el-table-column label="<%=data.Comment %>" prop="<%=_.camelCase(data.Field) %>"></el-table-column>
       <%_ }) -%>
     </el-table>
 
@@ -32,15 +32,15 @@
       >
         <%_ insertList.forEach(function(data){ -%>
           <el-col :span="12">
-            <el-form-item label="<%=data.Comment %>" prop="<%=data.Field %>">
+            <el-form-item label="<%=data.Comment %>" prop="<%=_.camelCase(data.Field) %>">
               <%_ if(data.Type.indexOf('varchar') !== -1) { -%>
-                <el-input v-model="addForm.<%=data.Field %>"></el-input>
+                <el-input v-model="addForm.<%=_.camelCase(data.Field) %>"></el-input>
               <%_ }-%>
               <%_ if(data.Type.indexOf('date') !== -1) { -%>
                 <el-date-picker
                   type="date"
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  v-model="addForm.<%=data.Field %>"></el-date-picker>
+                  v-model="addForm.<%=_.camelCase(data.Field) %>"></el-date-picker>
               <%_ } -%>
             </el-form-item>
           </el-col>
@@ -56,14 +56,14 @@
       return {
         searchForm: {
         <%_ searchList.forEach(function(data) { -%>
-          <%=data.Field %>: '',
+          <%=_.camelCase(data.Field) %>: '',
         <%_ }); -%>
         },
         tableData: [],
         visible: false,
         addForm: {
         <%_ insertList.forEach(function(data) { -%>
-          <%=data.Field %>: '',
+          <%=_.camelCase(data.Field) %>: '',
         <%_ }); -%>
         }
       }

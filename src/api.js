@@ -197,7 +197,7 @@ export default function (win, renderer) {
     } else {
       filepath = app.getPath('userData') + '\\' + name + '.' + data.suffix
     }
-    ejs.renderFile(data.templateName, data, (err, str) => {
+    ejs.renderFile(data.templateName, {...data, _: require('lodash')}, (err, str) => {
       if (err) {
         renderer.send('generateEntityFiles', {
           code: -1,

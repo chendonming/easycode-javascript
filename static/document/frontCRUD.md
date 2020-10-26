@@ -33,8 +33,32 @@ interface Field {
 
 ## 可使用方法
 
-特殊方法暂无。
+### lodash
 
-但是可以使用 JavaScript 的所有方法, 学习 JavaScript:
+lodash作为前端最受欢迎的工具库，里面有着许多方便的方法，而有的一些也已经成为了Javascript标准！
+
+lodash是一个一致性、模块化、高性能的 JavaScript 实用工具库!
+
+在ejs里面可以使用lodash的所有方法！
+
+比如: 把字符串转成驼峰命名:
+```js
+_.camelCase(data.Field)
+```
+
+首字母大写:
+```js
+_.capitalize(data.Field)
+```
+
+转为kebabCase写法:
+```js
+_.kebabCase(data.Field)
+```
+
+学习了解lodash https://www.lodashjs.com/
+
+
+还可以使用 JavaScript 的所有方法, 学习 JavaScript:
 
 https://developer.mozilla.org/zh-CN/docs/Learn/JavaScript
