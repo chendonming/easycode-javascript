@@ -1,24 +1,32 @@
-# easycode-javascript
+# EasyCode For JavaScript
 
-## Project setup
-```
-yarn install
-```
+# Feature
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+- 使用Ejs作为模板， 简单易学
 
-### Compiles and minifies for production
-```
-yarn build
-```
+- 此Ejs中已经内置了lodash.js 更灵活
 
-### Lints and fixes files
+- 只要是关于数据库生成的 都能用
+
+# DevelopmentEnvironment
+
+- yarn
 ```
-yarn lint
+yarn
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- 运行
+```
+yarn electron-serve
+```
+
+# ProductionEnvironment
+
+- github中有Releases可供下载
+
+- yarn electron-build
+
+
+# TODO
+
+- 后台语言java等模板demo制作
