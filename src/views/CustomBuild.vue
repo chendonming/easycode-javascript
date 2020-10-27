@@ -19,7 +19,6 @@
             </el-select>
           </el-form-item>
           <el-form-item label="" prop="">
-            <el-button type="primary" @click="query">查询</el-button>
             <el-button type="warning" @click="nextStep">下一步</el-button>
           </el-form-item>
         </el-form>
@@ -133,6 +132,11 @@ export default {
     'form.database': {
       handler (val) {
         ipcRenderer.send('queryAllTables', val)
+      }
+    },
+    'form.table': {
+      handler () {
+        this.query()
       }
     },
     connection () {

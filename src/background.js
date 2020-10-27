@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu, shell } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import api from './api'
 // import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -104,6 +104,20 @@ app.on('ready', async () => {
       ]
     },
     {
+      label: '&Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { role: 'close' }
+      ]
+    },
+    {
+      label: '&File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
       label: '&About',
       submenu: [
         {
@@ -116,6 +130,9 @@ app.on('ready', async () => {
               }
             }
           ]
+        },
+        {
+          role: 'about'
         }
       ]
     }
