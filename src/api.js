@@ -99,7 +99,7 @@ export default function (win, renderer) {
       connection = mysql.createConnection(data)
       connection.ping((err) => {
         if (err) {
-          win.webContents.send('connection.failed', { msg: '请启动mysql服务!' + err.message })
+          win.webContents.send('connection.failed', { msg: err.message })
         } else {
           win.webContents.send('connection.success')
         }
@@ -197,7 +197,7 @@ export default function (win, renderer) {
     } else {
       filepath = app.getPath('userData') + '\\' + name + '.' + data.suffix
     }
-    ejs.renderFile(data.templateName, {...data, _: require('lodash')}, (err, str) => {
+    ejs.renderFile(data.templateName, { ...data, _: require('lodash') }, (err, str) => {
       if (err) {
         renderer.send('generateEntityFiles', {
           code: -1,
