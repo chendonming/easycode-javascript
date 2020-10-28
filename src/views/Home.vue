@@ -25,16 +25,16 @@
       :close-on-click-modal="false"
     >
       <el-form :model="form" size="small">
-        <el-form-item label="IP地址" prop="host">
+        <el-form-item label="IP地址" prop="host" required>
           <el-input clearable v-model="form.host"></el-input>
         </el-form-item>
-        <el-form-item label="端口号" prop="port">
+        <el-form-item label="端口号" prop="port" required>
           <el-input clearable v-model="form.port"></el-input>
         </el-form-item>
-        <el-form-item label="用户名" prop="user">
+        <el-form-item label="用户名" prop="user" required>
           <el-input clearable v-model="form.user"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码" prop="password" required>
           <el-input
             clearable
             v-model="form.password"
