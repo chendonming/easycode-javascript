@@ -26,6 +26,11 @@ yarn electron-serve
 
 - yarn electron-build
 
+# Use
+
+ctrl+n 连接数据库
+
+ctrl+alt+s 设置生成模板目录（默认是桌面，mac、linux生成时会报错，更改生成目录就好了。mac、linux用户生成时请确保权限ok）
 
 # TODO
 
