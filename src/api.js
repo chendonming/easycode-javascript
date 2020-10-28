@@ -4,7 +4,7 @@ import mysql from 'mysql2'
 import ejs from 'ejs'
 import { v4 as uuidv4 } from 'uuid'
 import { exec } from 'child_process'
-import localstorage from 'electron-localstorage'
+import localstorage from './localstorage'
 import path from 'path'
 
 function queryAllTables (connection, db) {
