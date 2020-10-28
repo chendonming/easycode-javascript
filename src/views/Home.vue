@@ -15,7 +15,7 @@
         </ul>
       </el-aside>
       <el-main>
-        <router-view/>
+        <router-view />
       </el-main>
     </el-container>
     <el-dialog
@@ -42,7 +42,9 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="form.tryConnection">下次尝试使用缓存直接登录数据库</el-checkbox>
+          <el-checkbox v-model="form.tryConnection"
+            >下次尝试使用缓存直接登录数据库</el-checkbox
+          >
         </el-form-item>
       </el-form>
       <template slot="footer">
@@ -51,7 +53,7 @@
           size="small"
           @click="connectToTheDatabase"
           v-loading="loading"
-        >确定
+          >确定
         </el-button>
         <el-button size="small" @click="visible = false">取消</el-button>
       </template>
@@ -73,20 +75,27 @@
       :close-on-click-modal="false"
     >
       <el-form :model="settingForm" size="small">
-        <!--        TODO: 目前没有实现-->
-        <!--        <el-form-item label="默认的模板目录" prop="templateDirectory">-->
-        <!--          <el-input-->
-        <!--            :value="settingForm.templateDirectory"-->
-        <!--            readonly-->
-        <!--            @click.native="openDialog('templateDirectory')"-->
-        <!--          ></el-input>-->
-        <!--        </el-form-item>-->
         <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
           <el-input
             :value="settingForm.fileGenerationDirectory"
             readonly
             @click.native="openDialog('fileGenerationDirectory')"
           ></el-input>
+        </el-form-item>
+        <el-form-item label="主要主题色" prop="themeColor">
+          <el-color-picker v-model="settingForm.themeColor"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="成功" prop="successColor">
+          <el-color-picker v-model="settingForm.successColor"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="警告" prop="warningColor">
+          <el-color-picker v-model="settingForm.warningColor"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="危险" prop="dangerColor">
+          <el-color-picker v-model="settingForm.dangerColor"></el-color-picker>
+        </el-form-item>
+        <el-form-item label="普通信息" prop="infoColor">
+          <el-color-picker v-model="settingForm.infoColor"></el-color-picker>
         </el-form-item>
       </el-form>
       <template slot="footer">
@@ -125,7 +134,11 @@ export default {
       currentIndex: -1,
       settingForm: {
         fileGenerationDirectory: '',
-        templateDirectory: ''
+        templateDirectory: '',
+        successColor: '',
+        warningColor: '',
+        dangerColor: '',
+        infoColor: ''
       },
       currentDirectoryType: ''
     }
@@ -169,6 +182,11 @@ export default {
     ipcRenderer.on('getSetting', (e, json) => {
       if (json && JSON.stringify(json) !== '{}') {
         this.settingForm = json
+        this.$nextTick(() => {
+          this.settingForm.forEach(v => {
+            // todo
+          })
+        })
       }
     })
 
@@ -184,7 +202,9 @@ export default {
 
     ipcRenderer.on('about', (e, json) => {
       if (json) {
-        this.$router.push({ path: `/DocumentText?id=${json.id}&title=${json.title}` })
+        this.$router.push({
+          path: `/DocumentText?id=${json.id}&title=${json.title}`
+        })
       }
     })
   },
@@ -227,7 +247,7 @@ export default {
       cursor: pointer;
 
       &.active {
-        background: #409eff;
+        background: var(--primaryColor);
         color: #fff;
       }
     }
