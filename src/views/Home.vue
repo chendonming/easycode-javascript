@@ -1,7 +1,17 @@
 <template>
   <div class="home">
     <div class="header" style="-webkit-app-region: drag">
-      <div class="header-title">EasyCode</div>
+      <el-dropdown style="-webkit-app-region: no-drag" trigger="click">
+        <div class="header-title">EasyCode</div>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item @click.native="visible = true"
+            >连接数据库</el-dropdown-item
+          >
+          <el-dropdown-item @click.native="settingsVisible = true"
+            >用户设置</el-dropdown-item
+          >
+        </el-dropdown-menu>
+      </el-dropdown>
       <div class="bar" @click="close" style="-webkit-app-region: no-drag">
         <div class="iconfont icon-guanbi"></div>
       </div>
@@ -263,15 +273,38 @@ export default {
 
   .header {
     flex-shrink: 0;
-    padding: 10px;
     background: darkgray;
     color: #fff;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 36px;
+
+    .header-title {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      cursor: pointer;
+    }
+
+    .header-title:focus {
+      background: var(--primary);
+      color: #fff;
+    }
 
     .bar {
       cursor: pointer;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      width: 36px;
+      justify-content: center;
+    }
+
+    .bar:hover {
+      background: var(--primary);
+      color: #fff;
     }
   }
 
