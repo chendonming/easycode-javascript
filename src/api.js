@@ -306,4 +306,8 @@ export default function (win, renderer) {
       }
     })
   })
+
+  ipcMain.on('close', () => {
+    win.close()
+  })
 }

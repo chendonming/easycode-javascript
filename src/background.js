@@ -33,7 +33,8 @@ function createWindow () {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     },
-    show: false
+    show: false,
+    frame: false
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -132,7 +133,6 @@ app.on('ready', async () => {
             if (process.env.WEBPACK_DEV_SERVER_URL) {
               // Load the url of the dev server if in development mode
               newWin.loadURL(process.env.WEBPACK_DEV_SERVER_URL + '#/Note')
-              if (!process.env.IS_TEST) newWin.webContents.openDevTools()
             } else {
               createProtocol('app')
               // Load the index.html when not in development

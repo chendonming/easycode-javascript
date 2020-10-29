@@ -1,5 +1,11 @@
 <template>
   <div class="home">
+    <div class="header" style="-webkit-app-region: drag">
+      <div class="header-title">EasyCode</div>
+      <div class="bar" @click="close" style="-webkit-app-region: no-drag">
+        <div class="iconfont icon-guanbi"></div>
+      </div>
+    </div>
     <el-container>
       <el-aside width="200px">
         <ul class="menu">
@@ -43,8 +49,8 @@
         </el-form-item>
         <el-form-item>
           <el-checkbox v-model="form.tryConnection"
-            >下次尝试使用缓存直接登录数据库</el-checkbox
-          >
+            >下次尝试使用缓存直接登录数据库
+          </el-checkbox>
         </el-form-item>
       </el-form>
       <template slot="footer">
@@ -221,6 +227,9 @@ export default {
   },
   methods: {
     ...mapMutations(['setConnection']),
+    close () {
+      ipcRenderer.send('close')
+    },
     async connectToTheDatabase () {
       this.loading = true
       ipcRenderer.send('connectToTheDatabase', this.form)
@@ -245,8 +254,31 @@ export default {
 </script>
 
 <style lang="less">
+@import url("//at.alicdn.com/t/font_2166494_1okzkrtr5ny.css");
 .home {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  .header {
+    flex-shrink: 0;
+    padding: 10px;
+    background: darkgray;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .bar {
+      cursor: pointer;
+    }
+  }
+
+  .el-container {
+    flex: 1;
+    border: 1px solid #eee;
+  }
 
   .el-main {
     padding-top: 0;
