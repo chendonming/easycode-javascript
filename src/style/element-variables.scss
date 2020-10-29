@@ -1,0 +1,25 @@
+:root {
+  --primary: teal;
+  --success: #67c23a;
+  --warning: #e6a23c;
+  --danger: #f56c6c;
+  --info: #909399;
+}
+
+
+/* 改变主题色变量 */
+$--color-primary: teal;
+
+$--color-success: #67c23a;
+
+$--color-warning: #e6a23c;
+
+$--color-danger: #f56c6c;
+
+$--color-info: #909399;
+
+
+/* 改变 icon 字体路径变量，必需 */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import "~element-ui/packages/theme-chalk/src/index";

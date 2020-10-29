@@ -82,8 +82,9 @@
             @click.native="openDialog('fileGenerationDirectory')"
           ></el-input>
         </el-form-item>
-        <el-form-item label="主要主题色" prop="themeColor">
-          <el-color-picker v-model="settingForm.themeColor"></el-color-picker>
+        <!-- TODO 主题色替换 -->
+        <!-- <el-form-item label="主要主题色" prop="primaryColor">
+          <el-color-picker v-model="settingForm.primaryColor"></el-color-picker>
         </el-form-item>
         <el-form-item label="成功" prop="successColor">
           <el-color-picker v-model="settingForm.successColor"></el-color-picker>
@@ -96,7 +97,7 @@
         </el-form-item>
         <el-form-item label="普通信息" prop="infoColor">
           <el-color-picker v-model="settingForm.infoColor"></el-color-picker>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <template slot="footer">
         <el-button type="primary" @click="submit">确定</el-button>
@@ -135,10 +136,11 @@ export default {
       settingForm: {
         fileGenerationDirectory: '',
         templateDirectory: '',
-        successColor: '',
-        warningColor: '',
-        dangerColor: '',
-        infoColor: ''
+        primaryColor: '#409eff',
+        successColor: '#67c23a',
+        warningColor: '#e6a23c',
+        dangerColor: '#f56c6c',
+        infoColor: '#909399'
       },
       currentDirectoryType: ''
     }
@@ -182,11 +184,6 @@ export default {
     ipcRenderer.on('getSetting', (e, json) => {
       if (json && JSON.stringify(json) !== '{}') {
         this.settingForm = json
-        this.$nextTick(() => {
-          this.settingForm.forEach(v => {
-            // todo
-          })
-        })
       }
     })
 
@@ -207,6 +204,15 @@ export default {
         })
       }
     })
+  },
+  watch: {
+    settingForm: {
+      handler (val) {
+        // todo
+      },
+      immediate: true,
+      deep: true
+    }
   },
   methods: {
     ...mapMutations(['setConnection']),
@@ -247,7 +253,7 @@ export default {
       cursor: pointer;
 
       &.active {
-        background: var(--primaryColor);
+        background: var(--primary);
         color: #fff;
       }
     }
