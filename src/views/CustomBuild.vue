@@ -153,6 +153,10 @@ export default {
     }
   },
   created () {
+    document.addEventListener('refreshDB', () => {
+      ipcRenderer.send('showDatabase')
+    })
+
     ipcRenderer.send('showDatabase')
     ipcRenderer.on('showDatabase', (e, json) => {
       if (json.code !== 200) {

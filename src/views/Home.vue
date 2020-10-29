@@ -4,12 +4,8 @@
       <el-dropdown style="-webkit-app-region: no-drag" trigger="click">
         <div class="header-title">EasyCode</div>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="visible = true"
-            >连接数据库</el-dropdown-item
-          >
-          <el-dropdown-item @click.native="settingsVisible = true"
-            >用户设置</el-dropdown-item
-          >
+          <el-dropdown-item @click.native="visible = true">连接数据库</el-dropdown-item>
+          <el-dropdown-item @click.native="settingsVisible = true">用户设置</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <div class="bar" @click="close" style="-webkit-app-region: no-drag">
@@ -180,6 +176,7 @@ export default {
       this.loading = false
       this.visible = false
       this.setConnection(true)
+      document.dispatchEvent(new Event('refreshDB'))
     })
 
     ipcRenderer.on('connection.failed', (e, json) => {
@@ -187,7 +184,7 @@ export default {
       this.loading = false
     })
 
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.key === 'r') {
         window.location.reload()
       }

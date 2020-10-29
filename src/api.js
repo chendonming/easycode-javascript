@@ -96,6 +96,7 @@ export default function (win, renderer) {
   ipcMain.on('connectToTheDatabase', (e, data) => {
     try {
       delete data.tryConnection
+      if (connection) connection.destroy()
       connection = mysql.createConnection(data)
       connection.ping((err) => {
         if (err) {
