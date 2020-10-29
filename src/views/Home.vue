@@ -264,7 +264,6 @@ export default {
 </script>
 
 <style lang="less">
-@import url("//at.alicdn.com/t/font_2166494_1okzkrtr5ny.css");
 .home {
   height: 100vh;
   display: flex;
