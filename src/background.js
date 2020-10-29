@@ -105,6 +105,52 @@ app.on('ready', async () => {
       ]
     },
     {
+      label: '&Authority',
+      submenu: [
+        {
+          label: '创建账号',
+          click () {
+            win.webContents.send('openPermissions')
+          }
+        },
+        {
+          label: '创建便签',
+          click () {
+            let newWin = new BrowserWindow({
+              webPreferences: {
+                // Use pluginOptions.nodeIntegration, leave this alone
+                // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
+                nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+              },
+              width: 200,
+              height: 300,
+              frame: false,
+              x: 1600,
+              y: 100
+            })
+
+            if (process.env.WEBPACK_DEV_SERVER_URL) {
+              // Load the url of the dev server if in development mode
+              newWin.loadURL(process.env.WEBPACK_DEV_SERVER_URL + '#/Note')
+              if (!process.env.IS_TEST) newWin.webContents.openDevTools()
+            } else {
+              createProtocol('app')
+              // Load the index.html when not in development
+              newWin.loadURL('app://./index.html/#/Note')
+            }
+
+            newWin.on('closed', () => {
+              newWin = null
+            })
+
+            newWin.on('ready-to-show', () => {
+              newWin.show()
+            })
+          }
+        }
+      ]
+    },
+    {
       label: '&Window',
       submenu: [
         { role: 'minimize' },

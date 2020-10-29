@@ -3,8 +3,38 @@
     <keep-alive>
       <router-view />
     </keep-alive>
+    <el-dialog :title="title" width="40%" :visible.sync="visible">
+      <component :is="component"></component>
+    </el-dialog>
   </div>
 </template>
+
+<script>
+import { ipcRenderer } from 'electron'
+import CreateUser from './views/permission/CreateUser.vue'
+
+export default {
+  name: 'App',
+  components: {
+    CreateUser
+  },
+  data () {
+    return {
+      title: '',
+      visible: false,
+      component: ''
+    }
+  },
+  created () {
+    //  开启权限
+    ipcRenderer.on('openPermissions', () => {
+      this.component = 'create-user'
+      this.visible = true
+      this.title = '创建你的用户'
+    })
+  }
+}
+</script>
 
 <style lang="less">
 #app {

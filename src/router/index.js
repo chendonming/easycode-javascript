@@ -16,8 +16,16 @@ const routes = [
       {
         path: '/CustomBuild',
         component: () => import('@/views/CustomBuild')
+      },
+      {
+        path: '/JavaBuild',
+        component: () => import('@/views/JavaBuild')
       }
     ]
+  },
+  {
+    path: '/Note',
+    component: () => import('@/views/permission/Note')
   },
   {
     path: '/DocumentText',

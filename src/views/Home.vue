@@ -131,6 +131,11 @@ export default {
           label: '前端CRUD生成',
           path: 'CustomBuild'
         }
+        // 很久没玩过Java了，做出来很难有实用价值
+        // {
+        //   label: 'JavaDTO,Service等生成',
+        //   path: 'JavaBuild'
+        // }
       ],
       currentIndex: -1,
       settingForm: {
