@@ -2,7 +2,7 @@
   <div class="home">
     <div class="header" style="-webkit-app-region: drag">
       <el-dropdown style="-webkit-app-region: no-drag" trigger="click">
-        <div class="header-title">EasyCode</div>
+        <div class="header-title">{{title}}</div>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item @click.native="visible = true">连接数据库</el-dropdown-item>
           <el-dropdown-item @click.native="settingsVisible = true">用户设置</el-dropdown-item>
@@ -87,6 +87,9 @@
       :close-on-click-modal="false"
     >
       <el-form :model="settingForm" size="small">
+        <el-form-item label="应用名称" prop="title">
+          <el-input v-model="appTitle"></el-input>
+        </el-form-item>
         <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
           <el-input
             :value="settingForm.fileGenerationDirectory"
@@ -121,7 +124,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: 'Home',
@@ -202,6 +205,9 @@ export default {
     ipcRenderer.on('getSetting', (e, json) => {
       if (json && JSON.stringify(json) !== '{}') {
         this.settingForm = json
+        if (json.title) {
+          this.setTitle(json.title)
+        }
       }
     })
 
@@ -232,8 +238,19 @@ export default {
       deep: true
     }
   },
+  computed: {
+    ...mapGetters(['title']),
+    appTitle: {
+      get () {
+        return this.title
+      },
+      set (val) {
+        this.setTitle(val)
+      }
+    }
+  },
   methods: {
-    ...mapMutations(['setConnection']),
+    ...mapMutations(['setConnection', 'setTitle']),
     close () {
       ipcRenderer.send('close')
     },
@@ -253,7 +270,7 @@ export default {
       })
     },
     submit () {
-      ipcRenderer.send('saveSetting', this.settingForm)
+      ipcRenderer.send('saveSetting', { ...this.settingForm, title: this.appTitle })
       this.settingsVisible = false
     }
   }

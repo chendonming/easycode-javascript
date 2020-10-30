@@ -11,9 +11,13 @@ export default new Vuex.Store({
     successColor: '#67c23a',
     warningColor: '#e6a23c',
     dangerColor: '#f56c6c',
-    infoColor: '#909399'
+    infoColor: '#909399',
+    title: 'EasyCode'
   },
   mutations: {
+    setTitle (state, title) {
+      state.title = title
+    },
     setPrimaryColor (state, color) {
       state.primaryColor = color
     },
@@ -39,7 +43,8 @@ export default new Vuex.Store({
     successColor: state => state.successColor,
     warningColor: state => state.warningColor,
     dangerColor: state => state.dangerColor,
-    infoColor: state => state.infoColor
+    infoColor: state => state.infoColor,
+    title: state => state.title
   },
   actions: {},
   modules: {}
