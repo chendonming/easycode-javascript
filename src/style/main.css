@@ -1,0 +1,35 @@
+.df {
+  display: flex;
+}
+
+.tac {
+  text-align: center;
+}
+
+.tal {
+  text-align: left;
+}
+
+.center {
+  justify-content: center;
+}
+
+.vcenter {
+  align-items: center;
+}
+
+.p10 {
+  padding: 10px;
+}
+
+.pt10 {
+  padding-top: 10px;
+}
+
+.ptb10 {
+  padding: 10px 0;
+}
+
+.lr10 {
+  padding: 0 10px;
+}
