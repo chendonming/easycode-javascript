@@ -41,12 +41,16 @@
       </el-row>
       <div v-show="active === 0">
         <el-table :data="tableData" style="width: 100%" stripe border>
-          <el-table-column prop="Field" label="字段"></el-table-column>
-          <el-table-column prop="Comment" label="注释"></el-table-column>
+          <el-table-column prop="Field" label="字段" width="120"></el-table-column>
+          <el-table-column prop="Comment" label="注释">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.Comment" size="small"></el-input>
+            </template>
+          </el-table-column>
           <el-table-column prop="Type" label="类型"></el-table-column>
           <el-table-column label="组件">
             <template slot-scope="scope" prop="component">
-              <el-select v-model="scope.row.component" filterable size="small">
+              <el-select v-model="scope.row.component" filterable clearable size="small">
                 <el-option
                   v-for="(item, index) in componentList"
                   :key="index"
