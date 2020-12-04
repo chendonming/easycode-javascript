@@ -1,0 +1,34 @@
+[
+  {
+    "name": "输入框",
+    "value": "input"
+  },
+  {
+    "name": "文本框",
+    "value": "text"
+  },
+  {
+    "name": "时间选择器",
+    "value": "time"
+  },
+  {
+    "name": "日期选择器",
+    "value": "date"
+  },
+  {
+    "name": "日期时间选择器",
+    "value": "datetime"
+  },
+  {
+    "name": "上传",
+    "value": "upload"
+  },
+  {
+    "name": "颜色选择器",
+    "value": "color"
+  },
+  {
+    "name": "滑块",
+    "value": "slider"
+  }
+]

@@ -2,10 +2,17 @@
   <div class="home">
     <div class="header" style="-webkit-app-region: drag">
       <el-dropdown style="-webkit-app-region: no-drag" trigger="click">
-        <div class="header-title">{{title}}</div>
+        <div class="header-title">{{ title }}</div>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="visible = true">连接数据库</el-dropdown-item>
-          <el-dropdown-item @click.native="settingsVisible = true">用户设置</el-dropdown-item>
+          <el-dropdown-item @click.native="visible = true"
+            >连接数据库</el-dropdown-item
+          >
+          <el-dropdown-item @click.native="settingsVisible = true"
+            >用户设置</el-dropdown-item
+          >
+          <el-dropdown-item @click.native="usersManual"
+            >用户手册</el-dropdown-item
+          >
         </el-dropdown-menu>
       </el-dropdown>
       <div class="bar" @click="close" style="-webkit-app-region: no-drag">
@@ -251,6 +258,11 @@ export default {
   },
   methods: {
     ...mapMutations(['setConnection', 'setTitle']),
+    usersManual () {
+      this.$router.push({
+        path: '/DocumentText?id=frontCRUD.md&title=前端手册'
+      })
+    },
     close () {
       ipcRenderer.send('close')
     },
@@ -270,7 +282,10 @@ export default {
       })
     },
     submit () {
-      ipcRenderer.send('saveSetting', { ...this.settingForm, title: this.appTitle })
+      ipcRenderer.send('saveSetting', {
+        ...this.settingForm,
+        title: this.appTitle
+      })
       this.settingsVisible = false
     }
   }

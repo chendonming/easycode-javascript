@@ -93,6 +93,15 @@ export default function (win, renderer) {
     })
   })
 
+  ipcMain.on('loadComponentList', () => {
+    const file = path.join(__dirname, '../static/componentList.jsonc')
+    fs.readFile(file, 'utf8', (err, data) => {
+      if (!err) {
+        renderer.send('loadComponentList', data)
+      }
+    })
+  })
+
   ipcMain.on('connectToTheDatabase', (e, data) => {
     try {
       delete data.tryConnection

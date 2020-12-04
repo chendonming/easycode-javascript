@@ -10,7 +10,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 // eslint-disable-next-line no-unused-vars
-let win, connection
+let win
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -152,17 +152,11 @@ app.on('ready', async () => {
     },
     {
       label: '&Window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { role: 'close' }
-      ]
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { role: 'close' }]
     },
     {
       label: '&File',
-      submenu: [
-        { role: 'quit' }
-      ]
+      submenu: [{ role: 'quit' }]
     },
     {
       label: '&About',
@@ -173,7 +167,10 @@ app.on('ready', async () => {
             {
               label: '使用手册',
               click () {
-                win.webContents.send('about', { id: 'frontCRUD.md', title: '前端CRUD手册' })
+                win.webContents.send('about', {
+                  id: 'frontCRUD.md',
+                  title: '前端CRUD手册'
+                })
               }
             }
           ]
@@ -195,7 +192,7 @@ app.on('ready', async () => {
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', (data) => {
+    process.on('message', data => {
       if (data === 'graceful-exit') {
         app.quit()
       }

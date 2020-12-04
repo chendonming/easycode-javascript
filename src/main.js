@@ -6,6 +6,7 @@ import ElementUI from 'element-ui'
 import '@/style/element-variables.scss'
 import '@/style/reset.css'
 import '@/assets/iconfont/iconfont.css'
+import '@/style/main.css'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
