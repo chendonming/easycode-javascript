@@ -94,7 +94,7 @@ export default function (win, renderer) {
   })
 
   ipcMain.on('loadComponentList', () => {
-    const file = path.join(__dirname, '../static/componentList.jsonc')
+    const file = path.join(__dirname, '../static/componentList.json')
     fs.readFile(file, 'utf8', (err, data) => {
       if (!err) {
         renderer.send('loadComponentList', data)
@@ -165,7 +165,7 @@ export default function (win, renderer) {
         })
       } else {
         const fileName = app.getPath('userData') + '\\files\\' + newTableName + '.java'
-        fs.writeFile(fileName, str, { flag: 'a' }, (err, datas) => {
+        fs.writeFile(fileName, str, { flag: 'a' }, (err) => {
           if (err) {
             renderer.send('generateEntityFiles', {
               code: -1,
@@ -215,7 +215,7 @@ export default function (win, renderer) {
         })
       } else {
         // flag: a 不存在该文件则会创建该文件
-        fs.writeFile(filepath, str, { flag: 'ax' }, (err, datas) => {
+        fs.writeFile(filepath, str, { flag: 'ax' }, (err) => {
           if (err) {
             renderer.send('generateCustomFiles', {
               code: err.code
@@ -235,7 +235,7 @@ export default function (win, renderer) {
   ipcMain.on('displayField', (e, db, table) => {
     const json = {}
     if (connection) {
-      connection.query(`use ${db}`, (err, res) => {
+      connection.query(`use ${db}`, (err) => {
         if (err) {
           json.code = -1
           json.msg = 'err: ' + err.message

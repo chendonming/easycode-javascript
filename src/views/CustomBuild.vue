@@ -48,8 +48,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="Type" label="类型"></el-table-column>
-          <el-table-column label="组件">
-            <template slot-scope="scope" prop="component">
+          <el-table-column label="组件" prop="component">
+            <template slot-scope="scope">
               <el-select v-model="scope.row.component" filterable clearable size="small">
                 <el-option
                   v-for="(item, index) in componentList"
@@ -312,7 +312,7 @@ export default {
         if (json.code === 'EEXIST') {
           this.$notify.error('文件已存在')
         } else {
-          this.$notify.error(json.msg)
+          this.$notify.error(json.code + ': ' + json.msg)
         }
       } else {
         this.$notify.success('成功!')
@@ -390,7 +390,8 @@ export default {
         searchList,
         suffix: this.generateForm.suffix,
         templateName: this.localFile || this.fileList[0].raw.path,
-        name: this.generateForm.name
+        name: this.generateForm.name,
+        kdata: this.kdata
       }
       ipcRenderer.send('generateCustomFiles', json)
     },

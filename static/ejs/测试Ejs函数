@@ -1,0 +1,5 @@
+<%# 测试ejs如何自建help function -%>
+<%_ function a(str) { return str + 'hello world' } -%>
+<%_ searchList.forEach(function(data) { -%>
+    <%=a(data.Comment)%>
+<%_ }); -%>
