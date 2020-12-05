@@ -36,11 +36,13 @@
           <el-form-item label="" prop="">
             <el-button type="warning" @click="nextStep">下一步</el-button>
             <el-button type="success" size="small" @click="kvisible = true">设置属性</el-button>
+            <el-button type="primary" size="small" @click="jsonVisible = true">从swagger粘贴JSON</el-button>
           </el-form-item>
         </el-form>
       </el-row>
       <div v-show="active === 0">
-        <el-table :data="tableData" style="width: 100%" stripe border>
+        <el-table :data="tableData" style="width: 100%" border highlight-current-row ref="tableData">
+          <el-table-column type="index" label="序号" width="60"></el-table-column>
           <el-table-column prop="Field" label="字段" width="120"></el-table-column>
           <el-table-column prop="Comment" label="注释">
             <template slot-scope="scope">
@@ -90,6 +92,14 @@
                 <el-checkbox label="search"></el-checkbox>
                 <el-checkbox label="query"></el-checkbox>
               </el-checkbox-group>
+              <div style="margin-left: 10px;display: inline-block;">
+                <el-button type="text" v-if="scope.$index !== 0" class="el-icon-top"
+                           @click.stop="top(scope)">上移
+                </el-button>
+                <el-button type="text" v-if="scope.$index < tableData.length - 1" class="el-icon-bottom"
+                           @click.stop="bottom(scope)">下移
+                </el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -195,6 +205,15 @@
         </el-table>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="jsonVisible" title="从swagger粘贴JSON">
+      <div style="text-align: left;line-height: 21px;">
+        <i class="el-icon-info"></i>如果不能从数据库拿到想要的字段， 例如：多表联查有时后端会更改从表字段名称。将swagger等API文档中复制新增时的JSON
+      </div>
+      <el-input type="textarea" :rows="8"></el-input>
+      <template slot="footer">
+        <el-button type="primary">确定</el-button>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -207,6 +226,7 @@ export default {
   name: 'CustomBuild',
   data () {
     return {
+      jsonVisible: false,
       kvisible: false,
       kdata: [],
       fileList: [],
@@ -347,6 +367,18 @@ export default {
     ...mapGetters(['connection'])
   },
   methods: {
+    top (scope) {
+      const index = scope.$index
+      this.tableData.splice(index - 1, 0, (this.tableData[index]))
+      this.tableData.splice(index + 1, 1)
+      this.$refs.tableData.setCurrentRow(this.tableData[index - 1])
+    },
+    bottom (scope) {
+      const index = scope.$index
+      this.tableData.splice(index + 2, 0, (this.tableData[index]))
+      this.tableData.splice(index, 1)
+      this.$refs.tableData.setCurrentRow(this.tableData[index + 1])
+    },
     add () {
       this.kdata.push({ id: uuidv4(), key: '', value: '' })
     },
@@ -470,10 +502,23 @@ export default {
   margin-bottom: 13px;
 }
 
+/deep/ .el-table__body tr.current-row > td {
+  background-color: var(--primary);
+  color: #fff;
+
+  .el-button--text, .el-checkbox {
+    color: #fff;
+  }
+}
+
 .file-select {
   text-align: left;
   display: flex;
   align-items: baseline;
+}
+
+/deep/ .el-checkbox-group {
+  display: inline-block;
 }
 
 .generate {
