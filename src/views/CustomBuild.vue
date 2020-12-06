@@ -209,9 +209,9 @@
       <div style="text-align: left;line-height: 21px;">
         <i class="el-icon-info"></i>如果不能从数据库拿到想要的字段， 例如：多表联查有时后端会更改从表字段名称。将swagger等API文档中复制新增时的JSON
       </div>
-      <el-input type="textarea" :rows="8"></el-input>
+      <el-input type="textarea" :rows="8" v-model="swaggerJSON"></el-input>
       <template slot="footer">
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="jsonSubmit">确定</el-button>
       </template>
     </el-dialog>
   </el-card>
@@ -226,6 +226,7 @@ export default {
   name: 'CustomBuild',
   data () {
     return {
+      swaggerJSON: '',
       jsonVisible: false,
       kvisible: false,
       kdata: [],
@@ -367,6 +368,10 @@ export default {
     ...mapGetters(['connection'])
   },
   methods: {
+    jsonSubmit () {
+      console.log(this.swaggerJSON)
+      this.jsonVisible = false
+    },
     top (scope) {
       const index = scope.$index
       this.tableData.splice(index - 1, 0, (this.tableData[index]))
