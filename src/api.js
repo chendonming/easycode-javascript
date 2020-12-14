@@ -38,6 +38,25 @@ function queryAllTables (connection, db) {
   })
 }
 
+/**
+ * 根据表名查询字段名称
+ * @param table
+ */
+function queryColumns (connection, table) {
+  return new Promise((resolve, reject) => {
+    const json = {}
+    connection.query(`show full columns from ${table}`, (err, res) => {
+      if (err) {
+        json.code = -1
+        json.msg = 'err: ' + err.message
+        reject(json)
+      } else {
+        resolve(res)
+      }
+    })
+  })
+}
+
 export default function (win, renderer) {
   let connection
   ipcMain.on('queryTemplateFile', () => {
@@ -203,27 +222,86 @@ export default function (win, renderer) {
     const name = data.name || uuidv4()
     let filepath
     if (setting && setting.fileGenerationDirectory) {
-      filepath = setting.fileGenerationDirectory + '\\' + name + '.' + data.suffix
+      filepath = setting.fileGenerationDirectory + '\\' + name
     } else {
-      filepath = app.getPath('userData') + '\\' + name + '.' + data.suffix
+      filepath = app.getPath('userData') + '\\' + name
     }
     ejs.renderFile(data.templateName, { ...data, _: require('lodash') }, (err, str) => {
       if (err) {
-        renderer.send('generateEntityFiles', {
+        renderer.send('generateCustomFiles', {
           code: -1,
-          msg: 'err: ' + err.message
+          msg: 'err: ' + err.message,
+          err: err
         })
       } else {
         // flag: a 不存在该文件则会创建该文件
-        fs.writeFile(filepath, str, { flag: 'ax' }, (err) => {
+        if (data.generateForm.other) {
+          ejs.renderFile(data.templateName + data.generateForm.addEjsPath, {
+            ...data,
+            _: require('lodash')
+          }, (err, str) => {
+            if (err) {
+              renderer.send('generateEntityFiles', {
+                code: -1,
+                msg: 'err: ' + err.message,
+                err: err
+              })
+            } else {
+              fs.writeFile(filepath + data.generateForm.addPath + '.' + data.suffix, str, { flag: 'ax' }, (err) => {
+                if (err) {
+                  renderer.send('generateCustomFiles', {
+                    code: err.code
+                  })
+                } else {
+                  renderer.send('generateCustomFiles', {
+                    code: 200,
+                    data: filepath + data.generateForm.addPath
+                  })
+                }
+              })
+            }
+          })
+        }
+        if (data.generateForm.api) {
+          // 存在创建API文件
+          ejs.renderFile(data.templateName + 'Api', {
+            ...data,
+            _: require('lodash'),
+            err: err
+          }, (err, str) => {
+            if (err) {
+              renderer.send('generateCustomFiles', {
+                code: -1,
+                msg: 'err: ' + err.message,
+                err: err
+              })
+            } else {
+              fs.writeFile(filepath + '.js', str, { flag: 'ax' }, (err) => {
+                if (err) {
+                  renderer.send('generateCustomFiles', {
+                    code: err.code,
+                    err: err
+                  })
+                } else {
+                  renderer.send('generateCustomFiles', {
+                    code: 200,
+                    data: filepath + '.js'
+                  })
+                }
+              })
+            }
+          })
+        }
+        fs.writeFile(filepath + '.' + data.suffix, str, { flag: 'ax' }, (err) => {
           if (err) {
             renderer.send('generateCustomFiles', {
-              code: err.code
+              code: err.code,
+              err: err
             })
           } else {
             renderer.send('generateCustomFiles', {
               code: 200,
-              data: filepath
+              data: filepath + '.' + data.suffix
             })
           }
         })
@@ -235,23 +313,38 @@ export default function (win, renderer) {
   ipcMain.on('displayField', (e, db, table) => {
     const json = {}
     if (connection) {
-      connection.query(`use ${db}`, (err) => {
+      connection.query(`use ${db}`, async (err) => {
         if (err) {
           json.code = -1
           json.msg = 'err: ' + err.message
           renderer.send('displayField', json)
         } else {
-          connection.query(`show full columns from ${table}`, (err, res) => {
-            if (err) {
-              json.code = -1
-              json.msg = 'err: ' + err.message
-              renderer.send('displayField', json)
-            } else {
-              json.code = 200
-              json.data = res
-              renderer.send('displayField', json)
+          if (Object.prototype.toString.call(table) === '[object Array]') {
+            const jsonArray = []
+            for (let i = 0; i < table.length; i++) {
+              try {
+                const columns = await queryColumns(connection, table[i])
+                jsonArray.push(...columns)
+              } catch (e) {
+                renderer.send('displayField', e)
+                break
+              }
             }
-          })
+            renderer.send('displayField', {
+              code: 200,
+              data: jsonArray
+            })
+          } else {
+            try {
+              const tables = await queryColumns(connection, table)
+              renderer.send('displayField', {
+                code: 200,
+                data: tables
+              })
+            } catch (e) {
+              renderer.send('displayField', e)
+            }
+          }
         }
       })
     } else {
@@ -291,6 +384,17 @@ export default function (win, renderer) {
 
   ipcMain.on('getSetting', () => {
     renderer.send('getSetting', localstorage.getItem('setting'))
+  })
+
+  ipcMain.on('getKeyValue', () => {
+    renderer.send('getKeyValue', {
+      code: 200,
+      data: localstorage.getItem('keyValue')
+    })
+  })
+
+  ipcMain.on('saveKeyValue', (e, json) => {
+    localstorage.setItem('keyValue', json)
   })
 
   // 保存数据源

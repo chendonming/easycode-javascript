@@ -25,7 +25,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="表" prop="table" required>
-            <el-select v-model="form.table">
+            <el-select v-model="form.table" multiple filterable>
               <el-option
                 v-for="(item, index) in tableList"
                 :value="item"
@@ -36,20 +36,25 @@
           <el-form-item label="" prop="">
             <el-button type="warning" @click="nextStep">下一步</el-button>
             <el-button type="success" size="small" @click="kvisible = true">设置属性</el-button>
-            <el-button type="primary" size="small" @click="jsonVisible = true">从swagger粘贴JSON</el-button>
+            <el-checkbox v-model="hideFieldsWithoutComments" style="margin-left: 5px;">隐藏没有注释的字段</el-checkbox>
           </el-form-item>
         </el-form>
       </el-row>
       <div v-show="active === 0">
-        <el-table :data="tableData" style="width: 100%" border highlight-current-row ref="tableData">
+        <el-table :data="tableDataHide || tableData"
+                  @current-change="currenChange"
+                  style="width: 100%" border highlight-current-row ref="tableData">
           <el-table-column type="index" label="序号" width="60"></el-table-column>
-          <el-table-column prop="Field" label="字段" width="120"></el-table-column>
+          <el-table-column prop="Field" label="字段" width="120">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.Field" size="small"></el-input>
+            </template>
+          </el-table-column>
           <el-table-column prop="Comment" label="注释">
             <template slot-scope="scope">
               <el-input v-model="scope.row.Comment" size="small"></el-input>
             </template>
           </el-table-column>
-          <el-table-column prop="Type" label="类型"></el-table-column>
           <el-table-column label="组件" prop="component">
             <template slot-scope="scope">
               <el-select v-model="scope.row.component" filterable clearable size="small">
@@ -126,7 +131,6 @@
           :auto-upload="false"
           :on-change="handleChange"
           :on-remove="onRemove"
-          accept=".ejs"
           :file-list="fileList"
         >
           <el-button size="small" type="primary">选择ejs模板文件</el-button>
@@ -154,12 +158,26 @@
             <el-form-item label="后缀名" prop="suffix">
               <el-input v-model="generateForm.suffix"></el-input>
             </el-form-item>
+            <el-checkbox v-model="generateForm.api" size="small">新建API文件</el-checkbox>
+            <i class="el-icon-info"></i><b>API的Ejs模板文件应该是以文件名+Api结尾的文件</b>
+            <el-checkbox v-model="generateForm.other" size="small">启用两个文件(新增页面文件后缀为Edit)</el-checkbox>
+            <template v-if="generateForm.other">
+              <el-form-item prop="addPath" label="新增页面文件名">
+                <el-input v-model="generateForm.addPath"></el-input>
+              </el-form-item>
+              <el-form-item prop="addEjsPath" label="新增Ejs名称">
+                <el-input v-model="generateForm.addEjsPath"></el-input>
+              </el-form-item>
+              <i class="el-icon-info"></i><b>新增页面文件名=文件名+页面文件名,
+              新增Ejs名称应该是和Ejs模板文件处在同一目录，新增Ejs名称只是说明新增页面Ejs模板的suffix名称</b>
+            </template>
             <el-form-item label="文件名" prop="name">
               <el-input
                 v-model="generateForm.name"
                 placeholder="不填，则会使用uuid"
               ></el-input>
             </el-form-item>
+            <i class="el-icon-info"></i><b>所有的Ejs模板文件不要存在后缀名!</b>
           </el-form>
         </div>
         <div class="right">
@@ -182,10 +200,10 @@
           <el-button type="primary" size="small" @click="add">添加</el-button>
           <el-button type="danger" size="small" @click="del">删除</el-button>
         </el-row>
+        <el-checkbox v-model="rememberKey">记住列表数据方便下次填写数据</el-checkbox>
         <el-table
           :data="kdata"
           style="width: 100%"
-          stripe
           border
           highlight-current-row
           ref="table"
@@ -229,20 +247,26 @@ export default {
       swaggerJSON: '',
       jsonVisible: false,
       kvisible: false,
+      hideFieldsWithoutComments: false,
       kdata: [],
       fileList: [],
       databaseList: [],
       tableList: [],
       tableData: [],
+      tableDataHide: null,
       form: {
         database: '',
-        table: ''
+        table: []
       },
       active: 0,
       success: false,
       successFilePath: '',
       generateForm: {
-        suffix: 'vue'
+        suffix: 'vue',
+        other: false,
+        addPath: 'Edit',
+        addEjsPath: 'Edit',
+        api: false
       },
       counterElectionQuery: true,
       counterElectionInsert: true,
@@ -252,7 +276,10 @@ export default {
       localFile: '',
       // 组件列表文件
       componentList: [],
-      currentKeyVal: null
+      currentKeyVal: null,
+      // 当前选择行
+      currentRow: null,
+      rememberKey: true
     }
   },
   watch: {
@@ -264,6 +291,13 @@ export default {
     'form.table': {
       handler () {
         this.query()
+      }
+    },
+    hideFieldsWithoutComments (val) {
+      if (val) {
+        this.tableDataHide = this.tableData.filter(v => v.Comment)
+      } else {
+        this.tableDataHide = null
       }
     },
     connection () {
@@ -282,6 +316,13 @@ export default {
   created () {
     document.addEventListener('refreshDB', () => {
       ipcRenderer.send('showDatabase')
+    })
+
+    ipcRenderer.send('getKeyValue')
+    ipcRenderer.on('getKeyValue', (e, json) => {
+      if (json.code === 200 && json.data && Object.prototype.toString.call(json.data) === '[object Array]') {
+        this.kdata = json.data
+      }
     })
 
     ipcRenderer.send('showDatabase')
@@ -330,6 +371,7 @@ export default {
 
     ipcRenderer.on('generateCustomFiles', (e, json) => {
       if (json.code !== 200) {
+        console.error(json.err)
         if (json.code === 'EEXIST') {
           this.$notify.error('文件已存在')
         } else {
@@ -368,21 +410,27 @@ export default {
     ...mapGetters(['connection'])
   },
   methods: {
+    currenChange (row, row1) {
+      this.currentRow = row
+    },
     jsonSubmit () {
-      console.log(this.swaggerJSON)
       this.jsonVisible = false
     },
     top (scope) {
       const index = scope.$index
-      this.tableData.splice(index - 1, 0, (this.tableData[index]))
-      this.tableData.splice(index + 1, 1)
-      this.$refs.tableData.setCurrentRow(this.tableData[index - 1])
+      const table = this.tableDataHide || this.tableData
+      if (index === 0) return
+      table.splice(index - 1, 0, (table[index]))
+      table.splice(index + 1, 1)
+      this.$refs.tableData.setCurrentRow(table[index - 1])
     },
     bottom (scope) {
       const index = scope.$index
-      this.tableData.splice(index + 2, 0, (this.tableData[index]))
-      this.tableData.splice(index, 1)
-      this.$refs.tableData.setCurrentRow(this.tableData[index + 1])
+      const table = this.tableDataHide || this.tableData
+      if (index === this.tableData.length - 1) return
+      table.splice(index + 2, 0, (table[index]))
+      table.splice(index, 1)
+      this.$refs.tableData.setCurrentRow(table[index + 1])
     },
     add () {
       this.kdata.push({ id: uuidv4(), key: '', value: '' })
@@ -411,14 +459,15 @@ export default {
     },
     // 生成
     generate () {
+      const table = this.tableDataHide || this.tableData
       // 组装数据
-      const insertList = this.tableData.filter(
+      const insertList = table.filter(
         v => v.operating.indexOf('insert') !== -1
       )
-      const queryList = this.tableData.filter(
+      const queryList = table.filter(
         v => v.operating.indexOf('query') !== -1
       )
-      const searchList = this.tableData.filter(
+      const searchList = table.filter(
         v => v.operating.indexOf('search') !== -1
       )
       const json = {
@@ -426,11 +475,19 @@ export default {
         queryList,
         searchList,
         suffix: this.generateForm.suffix,
+        other: this.generateForm.other,
+        generateForm: this.generateForm,
         templateName: this.localFile || this.fileList[0].raw.path,
         name: this.generateForm.name,
         kdata: this.kdata
       }
       ipcRenderer.send('generateCustomFiles', json)
+
+      if (this.rememberKey) {
+        ipcRenderer.send('saveKeyValue', this.kdata)
+      } else {
+        ipcRenderer.send('saveKeyValue', [])
+      }
     },
     query () {
       this.$refs.form.validate(valid => {
@@ -483,17 +540,7 @@ export default {
       }
     },
     handleChange (file, fileList) {
-      const fileName = file.raw.path
-      const lastIndex = fileName.lastIndexOf('.')
-      if (fileName.substring(lastIndex) !== '.ejs') {
-        this.fileList = []
-        this.$notify.error({
-          title: '提示',
-          message: '请选择ejs模板'
-        })
-      } else {
-        this.fileList = fileList
-      }
+      this.fileList = fileList
     },
     onRemove () {
       this.fileList = []
@@ -508,7 +555,7 @@ export default {
 }
 
 /deep/ .el-table__body tr.current-row > td {
-  background-color: var(--primary);
+  background-color: var(--warning);
   color: #fff;
 
   .el-button--text, .el-checkbox {

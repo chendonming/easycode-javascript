@@ -87,7 +87,7 @@
             <%_ if(data.component === 'color') { -%>
               <el-color-picker v-model="addForm.<%=_.camelCase(data.Field) %>"></el-color-picker>
             <%_ }-%>
-            <%_ if(data.component === '') { -%>
+            <%_ if(!data.component) { -%>
               <el-input v-model="addForm.<%=_.camelCase(data.Field) %>"></el-input>
             <%_ }-%>
             </el-form-item>

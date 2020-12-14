@@ -1,30 +1,34 @@
 [
   {
-    "name": "输入框",
+    "name": "1输入框",
     "value": "input"
   },
   {
-    "name": "下拉框",
+    "name": "2下拉框",
     "value": "select"
   },
   {
-    "name": "文本框",
+    "name": "3文本框",
     "value": "text"
   },
   {
-    "name": "日期选择器",
+    "name": "4数字框",
+    "value": "number"
+  },
+  {
+    "name": "5日期选择器",
     "value": "date"
   },
   {
-    "name": "日期时间选择器",
+    "name": "6日期时间选择器",
     "value": "datetime"
   },
   {
-    "name": "颜色选择器",
+    "name": "7颜色选择器",
     "value": "color"
   },
   {
-    "name": "滑块",
+    "name": "8滑块",
     "value": "slider"
   }
 ]
