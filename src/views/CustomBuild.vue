@@ -44,7 +44,7 @@
         <el-table :data="tableDataHide || tableData"
                   @current-change="currenChange"
                   style="width: 100%" border highlight-current-row ref="tableData">
-          <el-table-column type="index" label="序号" width="60"></el-table-column>
+          <el-table-column prop="index" label="序号" width="60"></el-table-column>
           <el-table-column prop="Field" label="字段" width="120">
             <template slot-scope="scope">
               <el-input v-model="scope.row.Field" size="small"></el-input>
@@ -346,9 +346,10 @@ export default {
       if (json.code !== 200) {
         this.$notify.error(json.msg)
       } else {
-        this.tableData = json.data.map(v => ({
+        this.tableData = json.data.map((v, i) => ({
           ...v,
-          operating: []
+          operating: [],
+          index: i + 1
         }))
       }
     })

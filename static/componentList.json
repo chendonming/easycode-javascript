@@ -4,7 +4,7 @@
     "value": "input"
   },
   {
-    "name": "2下拉框",
+    "name": "2字典下拉框",
     "value": "select"
   },
   {
@@ -24,11 +24,11 @@
     "value": "datetime"
   },
   {
-    "name": "7颜色选择器",
-    "value": "color"
+    "name": "7附件上传",
+    "value": "upload"
   },
   {
-    "name": "8滑块",
-    "value": "slider"
+    "name": "8选择树",
+    "value": "treeselect"
   }
 ]

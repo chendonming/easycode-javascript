@@ -1,0 +1,47 @@
+<%# 这是前端vue ejs模板 API文件生成  -%>
+<%# 具体参数要求: name: "当前页面名称", api: "api前缀 例如/pm/baseproject/" -%>
+<%# 将首写字母大写，其余小写 -%>
+<%_ function A(str) { return _.capitalize(str) } -%>
+<%_ function getKey(key) { return kdata.filter(v => v.key === key)[0].value } -%>
+<%_ var api = getKey('api');var name = getKey('name'); -%>
+import request from '@/utils/request'
+
+export function list<%=A(name) %>(query) {
+  return request({
+    url: '<%=api -%>list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function get<%=A(name) %>(<%=A(name) %>Id) {
+  return request({
+    url: '<%=api -%>info/' + <%=A(name) %>Id,
+    method: 'get'
+  })
+}
+
+
+export function add<%=A(name) %>(data) {
+  return request({
+    url: '<%=api -%>save',
+    method: 'post',
+    data: data
+  })
+}
+
+export function update<%=A(name) %>(data) {
+  return request({
+    url: '<%=api -%>update',
+    method: 'put',
+    data: data
+  })
+}
+
+export function del<%=A(name) %>(data) {
+  return request({
+    url: '<%=api -%>delete',
+    method: 'delete',
+    data: data
+  })
+}

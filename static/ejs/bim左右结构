@@ -1,0 +1,443 @@
+<%# Bim工程前端生成模板 -%>
+<%# t: "新增项目" r: "必填字段 用英文逗号隔开" kp: "主键字段" -%>
+<%# 重置字典使用`code + 序号 : 字典值` -%>
+<%_ function getKey(key) { return kdata.filter(v => v.key === key)[0].value } -%>
+<%_ function getRequire(keys) { var arr = keys.split(','); var newArr = []; arr.forEach(v => { newArr.push(...insertList.filter(vv => vv.index==v)); }); return newArr; } -%>
+<%_ function filterSelect() { return insertList.filter(v => v.component === 'select').map(v => _.camelCase(v.Field) + 'List') } -%>
+<%_ function filterUpload() { return insertList.filter(v => v.component === 'upload') } -%>
+<%_ function filterTreeSelect() { return insertList.filter(v => v.component === 'treeselect').map(v => _.camelCase(v.Field) + 'Options') } -%>
+<%_ var getDicCode = (() => { var json = {}; kdata.filter(v => v.key.indexOf('code') === 0).forEach(v => { var serialNumber = v.key.substring(4); var key = insertList.filter(vv => vv.index == serialNumber)[0].Field; json[key] = v.value }); return json })() -%>
+<%_ function A(str) { return _.capitalize(str) } -%>
+<%_ function B(str) { return _.lowerFirst(str) } -%>
+<%_ var name = getKey('name'); -%>
+<template>
+  <div class="app-container relative" v-loading="loadingFull">
+    <el-row :gutter="12" class="full-height">
+      <!-- 项目树 -->
+      <el-col :span="4" :xs="24" class="full-height">
+        <div class="full-height bg-white pl-3 pr-3 ">
+          <selected-tree :tree-data="treeData" @node-click="clickNode" @node-check="checkNode"/>
+        </div>
+      </el-col>
+      <!-- 标段列表 -->
+      <el-col :span="20" :xs="24" class="full-height">
+          <div class="app-container relative" v-loading="loadingFull">
+            <div class="bg-white p-3 mb-4 border">
+              <el-form :model="searchForm" label-width="80" inline ref="form" class="search-form">
+            <%_ searchList.forEach(function(data) { -%>
+                <el-form-item label="<%=data.Comment %>" prop="<%=_.camelCase(data.Field) %>">
+                <%_ if(data.component === 'input') { -%>
+                  <el-input v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-input>
+                <%_ }-%>
+                <%_ if(data.component === 'text') { -%>
+                  <el-input v-model="searchForm.<%=_.camelCase(data.Field) %>" type="textarea" :row="3"></el-input>
+                <%_ }-%>
+                <%_ if(data.component === 'number') { -%>
+                  <el-input type="number" v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-input>
+                <%_ }-%>
+                <%_ if(data.component === 'select') { -%>
+                  <dictionary code="<%=getDicCode[data.Field] -%>" v-model="searchForm.<%=_.camelCase(data.Field) %>"/>
+                <%_ }-%>
+                <%_ if(data.component === 'date') { -%>
+                  <el-date-picker
+                    v-model="searchForm.<%=_.camelCase(data.Field) %>"
+                    type="date"
+                    value-format="yyyy-MM-dd"
+                    placeholder="选择日期">
+                  </el-date-picker>
+                <%_ }-%>
+                <%_ if(data.component === 'datetime') { -%>
+                  <el-date-picker
+                    v-model="searchForm.<%=_.camelCase(data.Field) %>"
+                    type="datetime"
+                    value-format="yyyy-MM-dd HH:mm:ss"
+                    placeholder="选择日期时间">
+                  </el-date-picker>
+                <%_ }-%>
+                <%_ if(data.component === 'color') { -%>
+                  <el-color-picker v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-color-picker>
+                <%_ }-%>
+                <%_ if(data.component === 'treeselect') { -%>
+                  <treeselect placeholder="请选择<%=data.Comment %>" v-model="searchForm.<%=_.camelCase(data.Field) %>" :options="<%=_.camelCase(data.Field) %>Options"/>
+                <%_ }-%>
+                <%_ if(!data.component) { -%>
+                  <el-input v-model="searchForm.<%=_.camelCase(data.Field) %>"></el-input>
+                <%_ }-%>
+                </el-form-item>
+            <%_ });-%>
+                <el-form-item>
+                  <el-button icon="el-icon-search" type="primary" @click="query">搜索</el-button>
+                  <el-button icon="el-icon-refresh" type="default">重置</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+
+            <div class="bg-white border" style="height: calc(100% - 74px)">
+              <div class="p-4">
+                <el-button type="primary" icon="el-icon-plus" @click="dialogShow = true"><%=getKey('t') %></el-button>
+              </div>
+              <el-table :data="data" height="calc(100% - 113px)" :loading="loading">
+                <el-table-column type="index" label="序号" width="100"></el-table-column>
+            <%_ queryList.forEach(function(data) { -%>
+                <el-table-column label="<%=data.Comment %>" prop="<%=_.camelCase(data.Field) %>"></el-table-column>
+            <%_ }); -%>
+                <el-table-column label="操作">
+                  <template slot-scope="scope">
+                    <el-button type="text" @click="update(scope.row)">编辑</el-button>
+                    <el-button type="text" class="text-red-sp hover:text-red-sp focus:text-red-sp" @click="del(scope.row)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <div class="p-2 text-right">
+                <el-pagination
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="pageNum"
+                  :page-sizes="[10, 50, 100, 200]"
+                  :page-size="pageSize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="total"
+                >
+                </el-pagination>
+              </div>
+            </div>
+            <transition
+              :duration="500"
+              name="el-zoom-in-center"
+            >
+              <div class="absolute top-0 bottom-0 left-0 right-0 bg-white z-50" v-show="dialogShow">
+                <div class="relative flex flex-col h-full">
+                  <el-page-header @back="goBack" content="详情页面" class="p-4 border-b border-gray-200"></el-page-header>
+                  <div class="p-4 overflow-auto">
+                    <el-divider content-position="left" class="m-0 mb-3">基础信息</el-divider>
+                    <el-form :model="form" label-width="100px" :rules="rules" ref="addForm">
+        <%# 进入新增form表单 -%>
+            <%_ _.chunk(insertList,2).forEach(function(data) { -%>
+                <%_ if(data.length === 2) { -%>
+                      <el-row>
+                        <el-col :span="8" :offset="2">
+                          <el-form-item prop="<%=_.camelCase(data[0].Field) %>" label="<%=data[0].Comment %>">
+                          <%_ if(data[0].component === 'input') { -%>
+                            <el-input v-model="form.<%=_.camelCase(data[0].Field) %>" placeholder="请输入<%=data[0].Comment %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'number') { -%>
+                            <el-input type="number" v-model="form.<%=_.camelCase(data[0].Field) %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'text') { -%>
+                            <el-input placeholder="请输入<%=data[0].Comment %>" v-model="form.<%=_.camelCase(data[0].Field) %>" type="textarea" :row="3"></el-input>
+                          <%_ }-%>
+
+                          <%_ if(data[0].component === 'select') { -%>
+                            <dictionary code="<%=getDicCode[data[0].Field] -%>" v-model="form.<%=_.camelCase(data[0].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'date') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[0].Comment %>"
+                              v-model="form.<%=_.camelCase(data[0].Field) %>"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'datetime') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[0].Comment %>"
+                              v-model="form.<%=_.camelCase(data[0].Field) %>"
+                              type="datetime"
+                              value-format="yyyy-MM-dd HH:mm:ss"
+                              placeholder="选择日期时间">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'color') { -%>
+                            <el-color-picker v-model="form.<%=_.camelCase(data[0].Field) %>"></el-color-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'treeselect') { -%>
+                            <treeselect placeholder="请选择<%=data[0].Comment %>" v-model="searchForm.<%=_.camelCase(data[0].Field) %>" :options="<%=_.camelCase(data[0].Field) %>Options"/>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'upload') { -%>
+                            <Tus image v-model="form.<%=_.camelCase(data[0].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(!data[0].component) { -%>
+                            <el-input v-model="form.<%=_.camelCase(data[0].Field) %>" placeholder="请输入<%=data[0].Comment %>"></el-input>
+                          <%_ }-%>
+                          </el-form-item>
+                        </el-col>
+                        <el-col :span="8" :offset="2">
+                          <el-form-item prop="<%=_.camelCase(data[1].Field) %>" label="<%=data[1].Comment %>">
+                          <%_ if(data[1].component === 'input') { -%>
+                            <el-input v-model="form.<%=_.camelCase(data[1].Field) %>" placeholder="请输入<%=data[1].Comment %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'number') { -%>
+                            <el-input type="number" v-model="form.<%=_.camelCase(data[1].Field) %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'text') { -%>
+                            <el-input placeholder="请输入<%=data[1].Comment %>" v-model="form.<%=_.camelCase(data[1].Field) %>" type="textarea" :row="3"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'select') { -%>
+                            <dictionary code="<%=getDicCode[data[1].Field] -%>" v-model="form.<%=_.camelCase(data[1].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'date') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[1].Comment %>"
+                              v-model="form.<%=_.camelCase(data[1].Field) %>"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'datetime') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[1].Comment %>"
+                              v-model="form.<%=_.camelCase(data[1].Field) %>"
+                              type="datetime"
+                              value-format="yyyy-MM-dd HH:mm:ss"
+                              placeholder="选择日期时间">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'color') { -%>
+                            <el-color-picker v-model="form.<%=_.camelCase(data[1].Field) %>"></el-color-picker>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'treeselect') { -%>
+                            <treeselect placeholder="请选择<%=data[1].Comment %>" v-model="searchForm.<%=_.camelCase(data[1].Field) %>" :options="<%=_.camelCase(data[1].Field) %>Options"/>
+                          <%_ }-%>
+                          <%_ if(data[1].component === 'upload') { -%>
+                            <Tus image v-model="form.<%=_.camelCase(data[1].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(!data[1].component) { -%>
+                            <el-input v-model="form.<%=_.camelCase(data[1].Field) %>" placeholder="请输入<%=data[1].Comment %>"></el-input>
+                          <%_ }-%>
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                <%_ } else {-%>
+                    <%_ if(data[0].component === 'text') { -%>
+                      <el-row>
+                        <el-col :span="16" :offset="2">
+                          <el-form-item prop="<%=_.camelCase(data[0].Field) %>" label="<%=data[0].Comment %>">
+                            <el-input placeholder="请输入<%=data[0].Comment %>" v-model="form.<%=_.camelCase(data[0].Field) %>" type="textarea" :rows="3"></el-input>
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    <%_ } else {-%>
+                      <el-row>
+                        <el-col :span="8" :offset="2">
+                          <el-form-item label="<%=data[0].Comment %>" prop="<%=_.camelCase(data[0].Field) %>">
+                          <%_ if(data[0].component === 'input') { -%>
+                            <el-input v-model="form.<%=_.camelCase(data[0].Field) %>" placeholder="请输入<%=data[0].Comment %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'number') { -%>
+                            <el-input type="number" v-model="form.<%=_.camelCase(data[0].Field) %>"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'text') { -%>
+                            <el-input placeholder="请输入<%=data[0].Comment %>" v-model="form.<%=_.camelCase(data[0].Field) %>" type="textarea" :row="3"></el-input>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'select') { -%>
+                            <dictionary code="<%=getDicCode[data[0].Field] -%>" v-model="form.<%=_.camelCase(data[0].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'date') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[0].Comment %>"
+                              v-model="form.<%=_.camelCase(data[0].Field) %>"
+                              type="date"
+                              value-format="yyyy-MM-dd"
+                              placeholder="选择日期">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'datetime') { -%>
+                            <el-date-picker
+                              placeholder="请选择<%=data[0].Comment %>"
+                              v-model="form.<%=_.camelCase(data[0].Field) %>"
+                              type="datetime"
+                              value-format="yyyy-MM-dd HH:mm:ss"
+                              placeholder="选择日期时间">
+                            </el-date-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'color') { -%>
+                            <el-color-picker v-model="form.<%=_.camelCase(data[0].Field) %>"></el-color-picker>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'treeselect') { -%>
+                            <treeselect placeholder="请选择<%=data[0].Comment %>" v-model="searchForm.<%=_.camelCase(data[0].Field) %>" :options="<%=_.camelCase(data[0].Field) %>Options"/>
+                          <%_ }-%>
+                          <%_ if(data[0].component === 'upload') { -%>
+                            <Tus image v-model="form.<%=_.camelCase(data[0].Field) %>"/>
+                          <%_ }-%>
+                          <%_ if(!data[0].component) { -%>
+                            <el-input placeholder="请输入<%=data[0].Comment %>" v-model="form.<%=_.camelCase(data[0].Field) %>"></el-input>
+                          <%_ }-%>
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    <%_ }-%>
+                <%_ }-%>
+            <%_ })-%>
+        <%# 进入新增form表单 end -%>
+                    </el-form>
+                  </div>
+                  <div class="absolute right-3 top-3">
+                    <el-button type="default" @click="dialogShow = false">取消</el-button>
+                    <el-button type="primary" @click="submit">确定</el-button>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
+<script>
+import SelectedTree from "@/components/SelectTree";
+import { add<%=A(name) -%>, get<%=A(name) -%>, list<%=A(name) -%>, update<%=A(name) -%>, del<%=A(name) -%> } from '@/api/system/<%=B(name) -%>'
+<%_ if(filterUpload() && filterUpload().length > 0) { -%>
+import Tus from '@/components/UploadImage/Tus'
+<%_ }-%>
+<%_ if(JSON.stringify(getDicCode) !== '{}') { -%>
+import Dictionary from '@/components/Dictionary'
+<%_ }-%>
+
+export default {
+  name: '<%=A(name) -%>',
+<%_ if(filterUpload() && filterUpload().length > 0 && JSON.stringify(getDicCode) !== '{}' && filterTreeSelect() && filterTreeSelect().length > 0) { -%>
+  components: { Tus, Dictionary, SelectedTree },
+<%_ } else if(filterUpload() && filterUpload().length > 0){-%>
+  components: { Tus, SelectedTree },
+<%_ } else if(JSON.stringify(getDicCode) !== '{}'){-%>
+  components: { Dictionary, SelectedTree },
+<%_ } -%>
+  data() {
+    return {
+      searchForm: {
+      <%_ searchList.forEach(function(data) { -%>
+        <%=_.camelCase(data.Field) %>: '',
+      <%_ }); -%>
+      },
+      form: {
+    <%_ insertList.forEach(function(data) { -%>
+      <%_ if(data.component === 'number') { -%>
+        <%=_.camelCase(data.Field) %>: 0,
+      <%_ } else if(data.component === 'upload') {-%>
+        <%=_.camelCase(data.Field) %>: [], // <%=data.Comment %> 上传组件数据
+      <%_ } else {-%>
+        <%=_.camelCase(data.Field) %>: '',
+      <%_ } -%>
+    <%_ }); -%>
+      },
+    <%_ filterSelect().forEach(data => { -%>
+      <%=_.camelCase(data) %>: [], // <%=data.Comment %> 上传组件数据
+    <%_ }); -%>
+      data: [],
+      pageSize: 10,
+      pageNum: 1,
+      total: 0,
+      dialogShow: false,
+      rules: {
+      <%_ getRequire(getKey('r')).forEach(function(data) { -%>
+        <%=_.camelCase(data.Field) %>: [
+          {
+            required: true,
+            message: '<%=data.Comment -%>不能为空',
+            trigger: 'blur'
+          }
+        ],
+      <%_ });-%>
+      },
+    <%_ filterTreeSelect().forEach(data => { -%>
+      <%=_.camelCase(data) %>: [], // <%=data.Comment %> 树数据
+    <%_ }); -%>
+      loading: false,
+      loadingFull: false,
+      treeData: []
+    }
+  },
+  created() {
+    this.query()
+  },
+  watch: {
+    dialogShow() {
+      if (this.$refs.addForm) {
+        this.$refs.addForm.resetFields()
+      }
+    }
+  },
+	methods: {
+		/*
+		* 点击node触发事件
+		* */
+		clickNode(data) {
+			console.log('data ==============>', data)
+		},
+		/*
+		* 勾选触发事件
+		* */
+		checkNode(data) {
+		  const { nodeObj, keysObj } = data
+		  console.log(nodeObj )
+		  console.log(keysObj)
+		},
+    del(row) {
+      this.$confirm('确定删除这条数据吗?', '温馨提示', { type: 'warning' }).then(() => {
+        del<%=A(name) -%>(row).then(() => {
+          this.$message.success('删除成功')
+          this.query()
+        })
+      })
+    },
+    update(row) {
+      this.loadingFull = true
+      get<%=A(name) -%>(row.<%=getKey('kp') -%>).then(res=>{
+        this.form = res.data
+        this.dialogShow = true
+      }).finally(() => {
+        this.loadingFull = false
+      })
+    },
+    cancel() {
+      this.dialogShow = false
+    },
+    submit() {
+      this.$refs.addForm.validate(valid => {
+        if (valid) {
+          if(this.form.<%=getKey('kp') -%>) {
+            update<%=A(name) -%>(this.form).then(res=>{
+              this.$message.success('修改成功!')
+              this.dialogShow = false
+            })
+          }else{
+            add<%=A(name) -%>(this.form).then(res=>{
+              this.$message.success('新增成功!')
+              this.dialogShow = false
+            })
+          }
+        }
+      })
+    },
+    handleSizeChange() {
+      this.pageSize = row
+      this.query()
+    },
+    handleCurrentChange() {
+      this.pageNum = row
+      this.query()
+    },
+    goBack() {
+      this.dialogShow = false
+    },
+    query() {
+      this.loading = true
+
+      list<%=A(name) -%>({
+        pageSize: this.pageSize,
+        pageNum: this.pageNum,
+        ...this.searchForm
+      }).then(res => {
+        this.data = res.data.list
+        this.total = res.data.totalCount
+      }).finally(() => {
+        this.loading = false
+      })
+    }
+	}
+
+}
+</script>
