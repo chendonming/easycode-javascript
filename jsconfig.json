@@ -1,0 +1,11 @@
+{
+  "include": ["src/**/*"],
+  "target": "es6",
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

@@ -153,33 +153,6 @@
         >
       </div>
       <div class="generate" v-show="active === 2">
-        <div class="left">
-          <el-form :model="generateForm" size="small">
-            <el-form-item label="后缀名" prop="suffix">
-              <el-input v-model="generateForm.suffix"></el-input>
-            </el-form-item>
-            <el-checkbox v-model="generateForm.api" size="small">新建API文件</el-checkbox>
-            <i class="el-icon-info"></i><b>API的Ejs模板文件应该是以文件名+Api结尾的文件</b>
-            <el-checkbox v-model="generateForm.other" size="small">启用两个文件(新增页面文件后缀为Edit)</el-checkbox>
-            <template v-if="generateForm.other">
-              <el-form-item prop="addPath" label="新增页面文件名">
-                <el-input v-model="generateForm.addPath"></el-input>
-              </el-form-item>
-              <el-form-item prop="addEjsPath" label="新增Ejs名称">
-                <el-input v-model="generateForm.addEjsPath"></el-input>
-              </el-form-item>
-              <i class="el-icon-info"></i><b>新增页面文件名=文件名+页面文件名,
-              新增Ejs名称应该是和Ejs模板文件处在同一目录，新增Ejs名称只是说明新增页面Ejs模板的suffix名称</b>
-            </template>
-            <el-form-item label="文件名" prop="name">
-              <el-input
-                v-model="generateForm.name"
-                placeholder="不填，则会使用uuid"
-              ></el-input>
-            </el-form-item>
-            <i class="el-icon-info"></i><b>所有的Ejs模板文件不要存在后缀名!</b>
-          </el-form>
-        </div>
         <div class="right">
           <el-button type="primary" @click="generate">生成</el-button>
           <el-button type="danger" @click="openWithCode"

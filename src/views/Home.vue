@@ -104,7 +104,7 @@
             @click.native="openDialog('fileGenerationDirectory')"
           ></el-input>
         </el-form-item>
-        <!-- TODO 主题色替换 -->
+        <!-- TODO主题色替换<没有实际意义搁置> -->
         <!-- <el-form-item label="主要主题色" prop="primaryColor">
           <el-color-picker v-model="settingForm.primaryColor"></el-color-picker>
         </el-form-item>

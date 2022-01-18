@@ -11,7 +11,7 @@ function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
     const json = {}
     if (connection) {
-      connection.query(`use ${db}`, err => {
+      connection.query(`use \`${db}\``, err => {
         if (err) {
           json.code = -1
           json.msg = '查询数据库失败: ' + err.message
@@ -45,7 +45,7 @@ function queryAllTables (connection, db) {
 function queryColumns (connection, table) {
   return new Promise((resolve, reject) => {
     const json = {}
-    connection.query(`show full columns from ${table}`, (err, res) => {
+    connection.query(`show full columns from \`${table}\``, (err, res) => {
       if (err) {
         json.code = -1
         json.msg = 'err: ' + err.message
@@ -313,7 +313,7 @@ export default function (win, renderer) {
   ipcMain.on('displayField', (e, db, table) => {
     const json = {}
     if (connection) {
-      connection.query(`use ${db}`, async (err) => {
+      connection.query(`use \`${db}\``, async (err) => {
         if (err) {
           json.code = -1
           json.msg = 'err: ' + err.message
