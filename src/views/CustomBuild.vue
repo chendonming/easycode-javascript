@@ -35,17 +35,32 @@
           </el-form-item>
           <el-form-item label="" prop="">
             <el-button type="warning" @click="nextStep">下一步</el-button>
-            <el-button type="success" size="small" @click="kvisible = true">设置属性</el-button>
-            <el-checkbox v-model="hideFieldsWithoutComments" style="margin-left: 5px;">隐藏没有注释的字段</el-checkbox>
+            <el-button type="success" size="small" @click="kvisible = true"
+              >设置属性</el-button
+            >
+            <el-checkbox
+              v-model="hideFieldsWithoutComments"
+              style="margin-left: 5px"
+              >隐藏没有注释的字段</el-checkbox
+            >
           </el-form-item>
         </el-form>
       </el-row>
       <div v-show="active === 0">
-        <el-table :data="tableDataHide || tableData"
-                  @current-change="currenChange"
-                  row-key="index"
-                  style="width: 100%" border highlight-current-row ref="tableData">
-          <el-table-column prop="index" label="序号" width="60"></el-table-column>
+        <el-table
+          :data="tableDataHide || tableData"
+          @current-change="currenChange"
+          row-key="index"
+          style="width: 100%"
+          border
+          highlight-current-row
+          ref="tableData"
+        >
+          <el-table-column
+            prop="index"
+            label="序号"
+            width="60"
+          ></el-table-column>
           <el-table-column prop="Field" label="字段" width="120">
             <template slot-scope="scope">
               <el-input v-model="scope.row.Field" size="small"></el-input>
@@ -58,7 +73,12 @@
           </el-table-column>
           <el-table-column label="组件" prop="component">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.component" filterable clearable size="small">
+              <el-select
+                v-model="scope.row.component"
+                filterable
+                clearable
+                size="small"
+              >
                 <el-option
                   v-for="(item, index) in componentList"
                   :key="index"
@@ -74,23 +94,20 @@
                 @click="counterElection('insert')"
                 size="small"
                 type="default"
-              >反选insert
-              </el-button
-              >
+                >反选insert
+              </el-button>
               <el-button
                 @click="counterElection('search')"
                 size="small"
                 type="default"
-              >反选search
-              </el-button
-              >
+                >反选search
+              </el-button>
               <el-button
                 @click="counterElection('query')"
                 size="small"
                 type="default"
-              >反选query
-              </el-button
-              >
+                >反选query
+              </el-button>
             </template>
             <template slot-scope="scope">
               <el-checkbox-group v-model="scope.row.operating">
@@ -98,12 +115,20 @@
                 <el-checkbox label="search"></el-checkbox>
                 <el-checkbox label="query"></el-checkbox>
               </el-checkbox-group>
-              <div style="margin-left: 10px;display: inline-block;">
-                <el-button type="text" v-if="scope.$index !== 0" class="el-icon-top"
-                           @click.stop="top(scope)">上移
+              <div style="margin-left: 10px; display: inline-block">
+                <el-button
+                  type="text"
+                  v-if="scope.$index !== 0"
+                  class="el-icon-top"
+                  @click.stop="top(scope)"
+                  >上移
                 </el-button>
-                <el-button type="text" v-if="scope.$index < tableData.length - 1" class="el-icon-bottom"
-                           @click.stop="bottom(scope)">下移
+                <el-button
+                  type="text"
+                  v-if="scope.$index < tableData.length - 1"
+                  class="el-icon-bottom"
+                  @click.stop="bottom(scope)"
+                  >下移
                 </el-button>
               </div>
             </template>
@@ -116,7 +141,7 @@
           size="small"
           placeholder="预设模板文件"
           clearable
-          style="margin-right: 10px;"
+          style="margin-right: 10px"
         >
           <el-option
             v-for="(item, index) in localTemplateFile"
@@ -140,30 +165,33 @@
           @click="nextStep"
           type="warning"
           size="small"
-          style="margin-left: 10px;"
-        >下一步
-        </el-button
-        >
+          style="margin-left: 10px"
+          >下一步
+        </el-button>
         <el-button
           @click="previous"
           type="default"
           size="small"
-          style="margin-left: 10px;"
-        >上一步
-        </el-button
-        >
+          style="margin-left: 10px"
+          >上一步
+        </el-button>
       </div>
       <div class="generate" v-show="active === 2">
+        <el-alert
+          :title="errorMessage"
+          type="error"
+          effect="dark"
+          v-show="errorShow"
+        >
+        </el-alert>
         <div class="right">
           <el-button type="primary" @click="generate">生成</el-button>
           <el-button type="danger" @click="openWithCode"
-          >用Vscode打开
-          </el-button
-          >
+            >用Vscode打开
+          </el-button>
           <el-button type="warning" @click="openWithExplorer"
-          >在资源管理器中打开
-          </el-button
-          >
+            >在资源管理器中打开
+          </el-button>
           <el-button type="default" @click="previous">上一步</el-button>
         </div>
       </div>
@@ -174,7 +202,9 @@
           <el-button type="primary" size="small" @click="add">添加</el-button>
           <el-button type="danger" size="small" @click="del">删除</el-button>
         </el-row>
-        <el-checkbox v-model="rememberKey">记住列表数据方便下次填写数据</el-checkbox>
+        <el-checkbox v-model="rememberKey"
+          >记住列表数据方便下次填写数据</el-checkbox
+        >
         <el-table
           :data="kdata"
           style="width: 100%"
@@ -198,8 +228,9 @@
       </div>
     </el-dialog>
     <el-dialog :visible.sync="jsonVisible" title="从swagger粘贴JSON">
-      <div style="text-align: left;line-height: 21px;">
-        <i class="el-icon-info"></i>如果不能从数据库拿到想要的字段， 例如：多表联查有时后端会更改从表字段名称。将swagger等API文档中复制新增时的JSON
+      <div style="text-align: left; line-height: 21px">
+        <i class="el-icon-info"></i>如果不能从数据库拿到想要的字段，
+        例如：多表联查有时后端会更改从表字段名称。将swagger等API文档中复制新增时的JSON
       </div>
       <el-input type="textarea" :rows="8" v-model="swaggerJSON"></el-input>
       <template slot="footer">
@@ -254,7 +285,9 @@ export default {
       currentKeyVal: null,
       // 当前选择行
       currentRow: null,
-      rememberKey: true
+      rememberKey: true,
+      errorShow: false,
+      errorMessage: ''
     }
   },
   watch: {
@@ -270,7 +303,7 @@ export default {
     },
     hideFieldsWithoutComments (val) {
       if (val) {
-        this.tableDataHide = this.tableData.filter(v => v.Comment)
+        this.tableDataHide = this.tableData.filter((v) => v.Comment)
       } else {
         this.tableDataHide = null
       }
@@ -295,7 +328,11 @@ export default {
 
     ipcRenderer.send('getKeyValue')
     ipcRenderer.on('getKeyValue', (e, json) => {
-      if (json.code === 200 && json.data && Object.prototype.toString.call(json.data) === '[object Array]') {
+      if (
+        json.code === 200 &&
+        json.data &&
+        Object.prototype.toString.call(json.data) === '[object Array]'
+      ) {
         this.kdata = json.data
       }
     })
@@ -351,7 +388,8 @@ export default {
         if (json.code === 'EEXIST') {
           this.$notify.error('文件已存在')
         } else {
-          this.$notify.error(json.code + ': ' + json.msg)
+          this.errorShow = true
+          this.errorMessage = json.msg
         }
       } else {
         this.$notify.success('成功!')
@@ -412,7 +450,7 @@ export default {
       const index = scope.$index
       const table = this.tableDataHide || this.tableData
       if (index === 0) return
-      table.splice(index - 1, 0, (table[index]))
+      table.splice(index - 1, 0, table[index])
       table.splice(index + 1, 1)
       this.$refs.tableData.setCurrentRow(table[index - 1])
     },
@@ -420,7 +458,7 @@ export default {
       const index = scope.$index
       const table = this.tableDataHide || this.tableData
       if (index === this.tableData.length - 1) return
-      table.splice(index + 2, 0, (table[index]))
+      table.splice(index + 2, 0, table[index])
       table.splice(index, 1)
       this.$refs.tableData.setCurrentRow(table[index + 1])
     },
@@ -429,7 +467,9 @@ export default {
     },
     del () {
       if (this.currentKeyVal) {
-        const findex = this.kdata.findIndex(v => v.id === this.currentKeyVal.id)
+        const findex = this.kdata.findIndex(
+          (v) => v.id === this.currentKeyVal.id
+        )
         if (typeof findex === 'number') {
           this.kdata.splice(findex, 1)
         }
@@ -439,7 +479,7 @@ export default {
       this.currentKeyVal = currentRow
     },
     counterElection (pos) {
-      this.tableData = this.tableData.map(v => {
+      this.tableData = this.tableData.map((v) => {
         const index = v.operating.indexOf(pos)
         if (v.operating.indexOf(pos) !== -1) {
           v.operating.splice(index, 1)
@@ -454,13 +494,13 @@ export default {
       const table = this.tableDataHide || this.tableData
       // 组装数据
       const insertList = table.filter(
-        v => v.operating.indexOf('insert') !== -1
+        (v) => v.operating.indexOf('insert') !== -1
       )
       const queryList = table.filter(
-        v => v.operating.indexOf('query') !== -1
+        (v) => v.operating.indexOf('query') !== -1
       )
       const searchList = table.filter(
-        v => v.operating.indexOf('search') !== -1
+        (v) => v.operating.indexOf('search') !== -1
       )
       const json = {
         insertList,
@@ -482,7 +522,7 @@ export default {
       }
     },
     query () {
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate((valid) => {
         if (valid) {
           ipcRenderer.send('displayField', this.form.database, this.form.table)
         }
@@ -508,7 +548,7 @@ export default {
     nextStep () {
       // 验证
       if (this.active === 0) {
-        const valid = this.tableData.some(v => v.operating.length !== 0)
+        const valid = this.tableData.some((v) => v.operating.length !== 0)
         if (valid) {
           // 下一步
           this.active++
@@ -550,7 +590,8 @@ export default {
   background-color: var(--warning);
   color: #fff;
 
-  .el-button--text, .el-checkbox {
+  .el-button--text,
+  .el-checkbox {
     color: #fff;
   }
 }
@@ -567,6 +608,7 @@ export default {
 
 .generate {
   display: flex;
+  flex-direction: column;
 
   .left {
     width: 300px;
