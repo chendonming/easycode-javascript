@@ -21,18 +21,24 @@ import DataSource from '@/components/DataSource.vue'
 import FieldTable from '@/components/FieldTable.vue'
 import ChooseTemplate from '@/components/ChooseTemplate.vue'
 import Generate from '@/components/Generate.vue'
+import tableData from '@/mix/tableData.js'
+import fileData from '@/mix/fileData.js'
 
 export default {
   name: 'BuildCode',
   components: { Generate, ChooseTemplate, FieldTable, DataSource },
+  mixins: [tableData, fileData],
   data () {
     return {
       active: 0
     }
   },
-  created () {
-    this.$on('nextStep', this.nextStep.bind(this))
-    this.$on('previous', this.previous.bind(this))
+  mounted () {
+    const components = this.$children?.[0]?.$children
+    components.forEach(component => {
+      component.$on('nextStep', this.nextStep.bind(this))
+      component.$on('previous', this.previous.bind(this))
+    })
   },
   methods: {
     previous () {
@@ -83,29 +89,7 @@ export default {
   }
 }
 
-.file-select {
-  text-align: left;
-  display: flex;
-  align-items: baseline;
-}
-
 /deep/ .el-checkbox-group {
   display: inline-block;
-}
-
-.generate {
-  display: flex;
-  flex-direction: column;
-
-  .left {
-    width: 300px;
-  }
-
-  .right {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    margin-left: 20px;
-  }
 }
 </style>

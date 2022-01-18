@@ -82,5 +82,9 @@ export default {
 </script>
 
 <style scoped>
-
+.ChooseTemplate {
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+}
 </style>

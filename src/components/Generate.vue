@@ -1,12 +1,8 @@
 <template>
   <div class="Generate">
-    <el-alert
-      :title="errorMessage"
-      type="error"
-      effect="dark"
-      v-show="errorShow"
-    >
-    </el-alert>
+    <pre v-show="errorShow">
+      {{errorMessage}}
+    </pre>
     <div class="right">
       <el-button type="primary" @click="generate">生成</el-button>
       <el-button type="danger" @click="openWithCode">用Vscode打开</el-button>
@@ -58,6 +54,7 @@ export default {
         }
       } else {
         this.$notify.success('成功!')
+        this.errorShow = false
         this.successFilePath = json.data
       }
     })
@@ -109,6 +106,28 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+.Generate {
+  display: flex;
+  flex-direction: column;
 
+  pre {
+    text-align: left;
+    background: #fef0f0;
+    color: #f56c6c;
+    padding: 20px;
+  }
+
+  .left {
+    width: 300px;
+  }
+
+  .right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+    margin-top: 20px;
+  }
+}
 </style>
