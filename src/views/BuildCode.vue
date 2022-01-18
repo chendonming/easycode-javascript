@@ -252,7 +252,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Sortable from 'sortablejs'
 
 export default {
-  name: 'CustomBuild',
+  name: 'BuildCode',
   data () {
     return {
       swaggerJSON: '',

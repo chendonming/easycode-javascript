@@ -10,34 +10,14 @@ const routes = [
     component: Home,
     children: [
       {
-        path: '/EntityClassGeneration',
-        component: () => import('@/views/EntityClassGeneration')
-      },
-      {
-        path: '/CustomBuild',
-        component: () => import('@/views/CustomBuild')
-      },
-      {
-        path: '/JavaBuild',
-        component: () => import('@/views/JavaBuild')
+        path: '/BuildCode',
+        component: () => import('@/views/BuildCode.vue')
       }
     ]
   },
   {
-    path: '/Note',
-    component: () => import('@/views/permission/Note')
-  },
-  {
     path: '/DocumentText',
     component: () => import('@/views/DocumentText')
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   }
 ]
 
