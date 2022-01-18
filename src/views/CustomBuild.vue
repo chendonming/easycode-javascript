@@ -25,7 +25,12 @@
             </el-select>
           </el-form-item>
           <el-form-item label="表" prop="table" required>
-            <el-select v-loading="tableLoading" v-model="form.table" multiple filterable>
+            <el-select
+              v-loading="tableLoading"
+              v-model="form.table"
+              multiple
+              filterable
+            >
               <el-option
                 v-for="(item, index) in tableList"
                 :value="item"
@@ -253,7 +258,9 @@ export default {
       swaggerJSON: '',
       jsonVisible: false,
       kvisible: false,
+      // 隐藏没有注释的字段
       hideFieldsWithoutComments: false,
+      // key value数据
       kdata: [],
       fileList: [],
       databaseList: [],
@@ -306,7 +313,7 @@ export default {
     },
     hideFieldsWithoutComments (val) {
       if (val) {
-        this.tableDataHide = this.tableData.filter((v) => v.Comment)
+        this.tableDataHide = this.tableData.filter(v => v.Comment)
       } else {
         this.tableDataHide = null
       }
@@ -463,9 +470,7 @@ export default {
     },
     del () {
       if (this.currentKeyVal) {
-        const findex = this.kdata.findIndex(
-          (v) => v.id === this.currentKeyVal.id
-        )
+        const findex = this.kdata.findIndex(v => v.id === this.currentKeyVal.id)
         if (typeof findex === 'number') {
           this.kdata.splice(findex, 1)
         }
@@ -475,7 +480,7 @@ export default {
       this.currentKeyVal = currentRow
     },
     counterElection (pos) {
-      this.tableData = this.tableData.map((v) => {
+      this.tableData = this.tableData.map(v => {
         const index = v.operating.indexOf(pos)
         if (v.operating.indexOf(pos) !== -1) {
           v.operating.splice(index, 1)
@@ -489,15 +494,9 @@ export default {
     generate () {
       const table = this.tableDataHide || this.tableData
       // 组装数据
-      const insertList = table.filter(
-        (v) => v.operating.indexOf('insert') !== -1
-      )
-      const queryList = table.filter(
-        (v) => v.operating.indexOf('query') !== -1
-      )
-      const searchList = table.filter(
-        (v) => v.operating.indexOf('search') !== -1
-      )
+      const insertList = table.filter(v => v.operating.indexOf('insert') !== -1)
+      const queryList = table.filter(v => v.operating.indexOf('query') !== -1)
+      const searchList = table.filter(v => v.operating.indexOf('search') !== -1)
       const json = {
         insertList,
         queryList,
@@ -518,7 +517,7 @@ export default {
       }
     },
     query () {
-      this.$refs.form.validate((valid) => {
+      this.$refs.form.validate(valid => {
         if (valid) {
           ipcRenderer.send('displayField', this.form.database, this.form.table)
         }
@@ -544,7 +543,7 @@ export default {
     nextStep () {
       // 验证
       if (this.active === 0) {
-        const valid = this.tableData.some((v) => v.operating.length !== 0)
+        const valid = this.tableData.some(v => v.operating.length !== 0)
         if (valid) {
           // 下一步
           this.active++

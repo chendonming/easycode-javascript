@@ -39,8 +39,7 @@ function initConfig () {
  */
 function readConfig () {
   try {
-    const result = fs.readFileSync(localConfig.configUrl)
-    return result
+    return fs.readFileSync(localConfig.configUrl)
   } catch (error) {
     return false
   }

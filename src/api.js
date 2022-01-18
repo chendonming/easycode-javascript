@@ -40,6 +40,7 @@ function queryAllTables (connection, db) {
 
 /**
  * 根据表名查询字段名称
+ * @param connection
  * @param table
  */
 function queryColumns (connection, table) {
@@ -76,7 +77,7 @@ export default function (win, renderer) {
           renderer.send('queryTemplateFile', json)
         })
       } else {
-        fs.readdir(path, (err, filelist) => {
+        fs.readdir(path, (err, fileList) => {
           if (err) {
             renderer.send('queryTemplateFile', {
               code: -1,
@@ -85,7 +86,7 @@ export default function (win, renderer) {
           } else {
             renderer.send('queryTemplateFile', {
               code: 200,
-              data: filelist.map(v => ({
+              data: fileList.map(v => ({
                 title: v,
                 value: path + '\\' + v
               }))
@@ -168,7 +169,7 @@ export default function (win, renderer) {
   })
 
   // 根据Ejs生成实体类文件 (Test)
-  function gennerateEjsFile (data, tableName) {
+  function generateEjsFile (data, tableName) {
     const newTableName = data.tableName ? data.tableName.toLocaleUpperCase() : tableName
     const newData = {
       ...data,
@@ -204,12 +205,12 @@ export default function (win, renderer) {
   // 生成实体类文件
   ipcMain.on('generateEntityFiles', (e, data) => {
     if (data.tableName) {
-      gennerateEjsFile(data)
+      generateEjsFile(data)
     } else {
       queryAllTables(connection, data.database).then(res => {
         if (res.code === 200) {
           res.data.forEach(v => {
-            gennerateEjsFile(data, v.toLocaleUpperCase())
+            generateEjsFile(data, v.toLocaleUpperCase())
           })
         }
       })
