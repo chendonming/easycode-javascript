@@ -43,6 +43,7 @@
       <div v-show="active === 0">
         <el-table :data="tableDataHide || tableData"
                   @current-change="currenChange"
+                  row-key="index"
                   style="width: 100%" border highlight-current-row ref="tableData">
           <el-table-column prop="index" label="序号" width="60"></el-table-column>
           <el-table-column prop="Field" label="字段" width="120">
@@ -212,6 +213,7 @@
 import { ipcRenderer } from 'electron'
 import { mapGetters } from 'vuex'
 import { v4 as uuidv4 } from 'uuid'
+import Sortable from 'sortablejs'
 
 export default {
   name: 'CustomBuild',
@@ -383,8 +385,24 @@ export default {
   computed: {
     ...mapGetters(['connection'])
   },
+  mounted () {
+    this.rowDrop()
+  },
   methods: {
-    currenChange (row, row1) {
+    rowDrop () {
+      const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      const _this = this
+      Sortable.create(tbody, {
+        //  指定父元素下可被拖拽的子元素
+        draggable: '.el-table__row',
+        onEnd ({ newIndex, oldIndex }) {
+          const table = _this.tableDataHide || _this.tableData
+          const currRow = table.splice(oldIndex, 1)[0]
+          table.splice(newIndex, 0, currRow)
+        }
+      })
+    },
+    currenChange (row) {
       this.currentRow = row
     },
     jsonSubmit () {
