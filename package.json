@@ -1,7 +1,9 @@
 {
   "name": "easycode-javascript",
-  "version": "1.0.20",
-  "private": true,
+  "version": "1.0.21",
+  "private": false,
+  "author": "chendm<2283973011@qq.com>",
+  "description": "一款前端代码生成器",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
