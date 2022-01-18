@@ -25,7 +25,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="表" prop="table" required>
-            <el-select v-model="form.table" multiple filterable>
+            <el-select v-loading="tableLoading" v-model="form.table" multiple filterable>
               <el-option
                 v-for="(item, index) in tableList"
                 :value="item"
@@ -287,12 +287,15 @@ export default {
       currentRow: null,
       rememberKey: true,
       errorShow: false,
-      errorMessage: ''
+      errorMessage: '',
+      // 表输入框loading
+      tableLoading: false
     }
   },
   watch: {
     'form.database': {
       handler (val) {
+        this.tableLoading = true
         ipcRenderer.send('queryAllTables', val)
       }
     },
@@ -352,6 +355,7 @@ export default {
       } else {
         this.tableList = json.data
       }
+      this.tableLoading = false
     })
 
     ipcRenderer.on('displayField', (e, json) => {
@@ -363,14 +367,6 @@ export default {
           operating: [],
           index: i + 1
         }))
-      }
-    })
-
-    ipcRenderer.on('queryAllTables', (e, json) => {
-      if (json.code !== 200) {
-        this.$notify.error(json.msg)
-      } else {
-        this.tableList = json.data
       }
     })
 
