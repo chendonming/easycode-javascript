@@ -54,7 +54,7 @@
       <div v-show="active === 0">
         <el-table
           :data="tableDataHide || tableData"
-          @current-change="currenChange"
+          @current-change="currentChange"
           row-key="index"
           style="width: 100%"
           border
@@ -443,7 +443,7 @@ export default {
         }
       })
     },
-    currenChange (row) {
+    currentChange (row) {
       this.currentRow = row
     },
     jsonSubmit () {
