@@ -12,9 +12,34 @@ export default new Vuex.Store({
     warningColor: '#e6a23c',
     dangerColor: '#f56c6c',
     infoColor: '#909399',
-    title: 'EasyCode'
+    title: 'EasyCode',
+
+    tableDataHide: null,
+    tableData: [],
+    localFile: '',
+    fileList: [],
+    rememberKey: true,
+    kdata: []
   },
   mutations: {
+    setKdata (state, data) {
+      state.kdata = data
+    },
+    setRememberKey (state, key) {
+      state.rememberKey = key
+    },
+    setFileList (state, fileList) {
+      state.fileList = fileList
+    },
+    setLocalFile (state, localFile) {
+      state.localFile = localFile
+    },
+    setTableData (state, tableData) {
+      state.tableData = tableData
+    },
+    setTableDataHide (state, tableDataHide) {
+      state.tableDataHide = tableDataHide
+    },
     setTitle (state, title) {
       state.title = title
     },
@@ -44,7 +69,9 @@ export default new Vuex.Store({
     warningColor: state => state.warningColor,
     dangerColor: state => state.dangerColor,
     infoColor: state => state.infoColor,
-    title: state => state.title
+    title: state => state.title,
+    tableDataHide: state => state.tableDataHide,
+    tableData: state => state.tableData
   },
   actions: {},
   modules: {}
