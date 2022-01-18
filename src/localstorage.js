@@ -25,10 +25,10 @@ function initConfig () {
       localConfig.config = JSON.parse(config)
       return true
     }
-    const defalutConfig = {}
-    const content = JSON.stringify(defalutConfig)
+    const defaultConfig = {}
+    const content = JSON.stringify(defaultConfig)
     fs.writeFileSync(localConfig.configUrl, content)
-    localConfig.config = defalutConfig
+    localConfig.config = defaultConfig
     return true
   } catch (e) {
     return false
