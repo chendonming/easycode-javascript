@@ -56,6 +56,7 @@
         <el-form-item label="密码" prop="password" required>
           <el-input
             clearable
+            show-password
             v-model="form.password"
             type="password"
           ></el-input>
