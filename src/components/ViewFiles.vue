@@ -17,13 +17,17 @@ export default {
   props: {
     // 文件id
     id: String,
+    content: String,
     title: String,
     width: String,
     height: String
   },
   watch: {
     id () {
-      this.query()
+      if (!this.content) { this.query() }
+    },
+    content (val) {
+      this.createCode(val)
     }
   },
   beforeDestroy () {
@@ -33,23 +37,25 @@ export default {
   mounted () {
     ipcRenderer.on('consultYourDocumentation', (e, json) => {
       if (json && JSON.stringify(json) !== '{}') {
-        this.instance = monaco.editor.create(this.$refs.ViewFiles, {
-          value: json,
-          language: 'html',
-          wordWrap: 'wordWrapColumn',
-          wordWrapColumn: 78,
-          // Set this to false to not auto word wrap minified files
-          wordWrapMinified: true,
-          // try "same", "indent" or "none"
-          wrappingIndent: 'indent',
-          theme: 'vs-dark'
-        })
+        this.createCode(json)
       }
     })
 
-    this.query()
+    if (!this.content) { this.query() } else {
+      this.createCode(this.content)
+    }
   },
   methods: {
+    createCode (json) {
+      if (this.instance) this.instance.dispose()
+      this.instance = monaco.editor.create(this.$refs.ViewFiles, {
+        value: json,
+        language: 'html',
+        wrappingIndent: 'indent',
+        theme: 'vs-dark',
+        wordWrap: 'on'
+      })
+    },
     goBack () {
       this.$router.go(-1)
     },

@@ -239,77 +239,28 @@ export default function (win, renderer) {
           err: err
         })
       } else {
-        // flag: a 不存在该文件则会创建该文件
-        if (data.generateForm.other) {
-          ejs.renderFile(data.templateName + data.generateForm.addEjsPath, {
-            ...data,
-            _: require('lodash')
-          }, (err, str) => {
-            if (err) {
-              renderer.send('generateEntityFiles', {
-                code: -1,
-                msg: 'err: ' + err.message,
-                err: err
-              })
-            } else {
-              fs.writeFile(filepath + data.generateForm.addPath + '.' + data.suffix, str, { flag: 'ax' }, (err) => {
-                if (err) {
-                  renderer.send('generateCustomFiles', {
-                    code: err.code
-                  })
-                } else {
-                  renderer.send('generateCustomFiles', {
-                    code: 200,
-                    data: filepath + data.generateForm.addPath
-                  })
-                }
-              })
-            }
+        if (data.type === 'previewCode') {
+          // 执行预览
+          renderer.send('generateCustomFiles', {
+            code: 200,
+            data: str,
+            type: 'previewCode'
           })
-        }
-        if (data.generateForm.api) {
-          // 存在创建API文件
-          ejs.renderFile(data.templateName + 'Api', {
-            ...data,
-            _: require('lodash'),
-            err: err
-          }, (err, str) => {
+        } else {
+          fs.writeFile(filepath + '.' + data.suffix, str, { flag: 'ax' }, (err) => {
             if (err) {
               renderer.send('generateCustomFiles', {
-                code: -1,
-                msg: 'err: ' + err.message,
+                code: err.code,
                 err: err
               })
             } else {
-              fs.writeFile(filepath + '.js', str, { flag: 'ax' }, (err) => {
-                if (err) {
-                  renderer.send('generateCustomFiles', {
-                    code: err.code,
-                    err: err
-                  })
-                } else {
-                  renderer.send('generateCustomFiles', {
-                    code: 200,
-                    data: filepath + '.js'
-                  })
-                }
+              renderer.send('generateCustomFiles', {
+                code: 200,
+                data: filepath + '.' + data.suffix
               })
             }
           })
         }
-        fs.writeFile(filepath + '.' + data.suffix, str, { flag: 'ax' }, (err) => {
-          if (err) {
-            renderer.send('generateCustomFiles', {
-              code: err.code,
-              err: err
-            })
-          } else {
-            renderer.send('generateCustomFiles', {
-              code: 200,
-              data: filepath + '.' + data.suffix
-            })
-          }
-        })
       }
     })
   })
