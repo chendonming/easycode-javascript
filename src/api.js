@@ -1,4 +1,4 @@
-import { ipcMain, app, dialog } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
 import fs from 'fs'
 import mysql from 'mysql2'
 import ejs from 'ejs'
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { exec } from 'child_process'
 import localstorage from './localstorage'
 import path from 'path'
+import fsExtra from 'fs-extra'
 
 function queryAllTables (connection, db) {
   return new Promise((resolve, reject) => {
@@ -17,14 +18,14 @@ function queryAllTables (connection, db) {
           json.msg = '查询数据库失败: ' + err.message
           reject(json)
         } else {
-          connection.query('show tables', (err, res) => {
+          connection.query('select TABLE_NAME,TABLE_COMMENT from information_schema.tables where TABLE_TYPE = \'BASE TABLE\'', (err, res) => {
             if (err) {
               json.code = -1
               json.msg = '查询数据库失败: ' + err.message
               reject(json)
             } else {
               json.code = 200
-              json.data = res.map(v => v[`Tables_in_${db}`])
+              json.data = res
               resolve(json)
             }
           })
@@ -227,7 +228,10 @@ export default function (win, renderer) {
     } else {
       filepath = app.getPath('userData') + '\\' + name
     }
-    ejs.renderFile(data.templateName, { ...data, _: require('lodash') }, (err, str) => {
+    ejs.renderFile(data.templateName, {
+      ...data,
+      _: require('lodash')
+    }, (err, str) => {
       if (err) {
         renderer.send('generateCustomFiles', {
           code: -1,
@@ -378,6 +382,21 @@ export default function (win, renderer) {
     })
   })
 
+  // 打开文件选择框
+  ipcMain.on('openFile', (e, data) => {
+    const json = dialog.showOpenDialog({
+      title: data.title,
+      filters: data.filters,
+      properties: ['openFile'],
+      message: '输入框的信息测试'
+    })
+
+    json.then(res => {
+      renderer.send('openFile', res.filePaths)
+    })
+  })
+
+  // 保存系统设置
   ipcMain.on('saveSetting', (e, json) => {
     localstorage.setItem('setting', json)
     renderer.send('saveSetting', { code: 200 })
@@ -409,8 +428,8 @@ export default function (win, renderer) {
   })
 
   // 查询文档
-  ipcMain.on('consultYourDocumentation', (e, id) => {
-    const file = path.join(__dirname, '../static/document', id)
+  ipcMain.on('consultYourDocumentation', (e, id, filePath) => {
+    const file = path.join(__dirname, filePath || '../static/document', id)
     fs.access(file, err => {
       if (!err) {
         fs.readFile(file, 'utf8', (err, data) => {
@@ -420,6 +439,55 @@ export default function (win, renderer) {
         })
       }
     })
+  })
+
+  // 模板管理 - 新增
+  ipcMain.on('TemplateManagementAdd', (e, data) => {
+    const uuid = uuidv4()
+    const picture = path.join(__dirname, '../static/picture', `${uuid}${path.extname(data.picture)}`)
+    const ejs = path.join(__dirname, '../static/ejs', `${uuid}.ejs`)
+    // 进行复制操作
+    Promise.all([fsExtra.copy(data.picture, picture), fsExtra.copy(data.ejs, ejs)]).then(() => {
+      let templates = localstorage.getItem('templates')
+      if (!templates) {
+        localstorage.setItem('templates', [])
+        templates = []
+      }
+
+      templates.push({
+        id: uuid,
+        name: data.name,
+        picture,
+        ejs
+      })
+
+      localstorage.setItem('templates', templates)
+      renderer.send('TemplateManagementAdd:success')
+    }).catch(err => {
+      renderer.send('TemplateManagementAdd:error', err)
+    })
+  })
+
+  // 模板管理 - 查询
+  ipcMain.on('TemplateManagementQuery', () => {
+    renderer.send('TemplateManagementQuery:success', localstorage.getItem('templates'))
+  })
+
+  // 模板管理 - 设置当前模板
+  ipcMain.on('setCurrentTemp', (e, data) => {
+    localstorage.setItem('currentTemp', data)
+  })
+
+  // 模板管理 - 获取当前模板
+  ipcMain.on('getCurrentTemp', () => {
+    renderer.send('getCurrentTemp:success', localstorage.getItem('currentTemp'))
+  })
+
+  // 模板管理 - 删除模板
+  ipcMain.on('TemplateManagementDel', (e, data) => {
+    const temps = localstorage.getItem('templates').filter(v => v.id !== data.id)
+    localstorage.setItem('templates', temps)
+    renderer.send('TemplateManagementDel:success')
   })
 
   ipcMain.on('close', () => {

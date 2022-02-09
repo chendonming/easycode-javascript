@@ -3,7 +3,7 @@
     <keep-alive>
       <router-view />
     </keep-alive>
-    <el-dialog :title="title" width="40%" :visible.sync="visible">
+    <el-dialog :title="title" width="400px" :visible.sync="visible">
       <component :is="component"></component>
     </el-dialog>
   </div>

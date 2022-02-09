@@ -9,7 +9,9 @@ import '@/assets/iconfont/iconfont.css'
 import '@/style/main.css'
 
 Vue.config.productionTip = false
-Vue.use(ElementUI)
+Vue.use(ElementUI, {
+  size: 'small'
+})
 
 new Vue({
   router,

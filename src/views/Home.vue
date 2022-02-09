@@ -1,18 +1,17 @@
 <template>
   <div class="home">
     <div class="header" style="-webkit-app-region: drag">
-      <el-dropdown style="-webkit-app-region: no-drag" trigger="click">
+      <el-dropdown style="-webkit-app-region: no-drag" trigger="click" size="medium">
         <div class="header-title">{{ title }}</div>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click.native="visible = true"
-            >连接数据库</el-dropdown-item
-          >
-          <el-dropdown-item @click.native="settingsVisible = true"
-            >用户设置</el-dropdown-item
-          >
-          <el-dropdown-item @click.native="usersManual"
-            >用户手册</el-dropdown-item
-          >
+          <el-dropdown-item @click.native="visible = true">连接数据库
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="settingsVisible = true">用户设置
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="usersManual">用户使用手册
+          </el-dropdown-item>
+          <el-dropdown-item @click.native="importJSON">导入配置数据</el-dropdown-item>
+          <el-dropdown-item @click.native="exportJSON">导出配置数据</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <div class="bar" @click="close" style="-webkit-app-region: no-drag">
@@ -22,28 +21,18 @@
     <el-container>
       <el-aside width="200px">
         <ul class="menu">
-          <li
-            class="menu-item"
-            :class="{ active: index === currentIndex }"
-            @click="jumpRoute(item.path, index)"
-            v-for="(item, index) in menuList"
-            :key="index"
-          >
+          <li class="menu-item" :class="{ active: index === currentIndex }" @click="jumpRoute(item.path, index)"
+              v-for="(item, index) in menuList" :key="index">
             {{ item.label }}
           </li>
         </ul>
       </el-aside>
       <el-main>
-        <router-view />
+        <router-view/>
       </el-main>
     </el-container>
-    <el-dialog
-      :visible.sync="visible"
-      title="连接到MySql"
-      width="40%"
-      :close-on-click-modal="false"
-    >
-      <el-form :model="form" size="small">
+    <el-dialog :visible.sync="visible" title="连接到MySql" width="400px" :close-on-click-modal="false">
+      <el-form :model="form" size="small" ref="datasource">
         <el-form-item label="IP地址" prop="host" required>
           <el-input clearable v-model="form.host"></el-input>
         </el-form-item>
@@ -54,73 +43,28 @@
           <el-input clearable v-model="form.user"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password" required>
-          <el-input
-            clearable
-            show-password
-            v-model="form.password"
-            type="password"
-          ></el-input>
+          <el-input clearable show-password v-model="form.password" type="password"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="form.tryConnection"
-            >下次尝试使用缓存直接登录数据库
+          <el-checkbox v-model="form.tryConnection">下次尝试使用缓存直接登录数据库
           </el-checkbox>
         </el-form-item>
       </el-form>
       <template slot="footer">
-        <el-button
-          type="primary"
-          size="small"
-          @click="connectToTheDatabase"
-          v-loading="loading"
-          >确定
+        <el-button type="primary" size="small" @click="connectToTheDatabase" v-loading="loading">确定
         </el-button>
         <el-button size="small" @click="visible = false">取消</el-button>
       </template>
     </el-dialog>
-    <!-- TODO: 暂时没有公告 -->
-    <!--    <el-dialog :visible.sync="visibleDesc" title="说明" width="40%">-->
-    <!--      <div>这是一些公告说明</div>-->
-    <!--      <template slot="footer">-->
-    <!--        <div style="display: flex;justify-content: space-between;">-->
-    <!--          <el-checkbox v-model="settingForm.noTip">下次不在显示</el-checkbox>-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--    </el-dialog>-->
-
-    <el-dialog
-      :visible.sync="settingsVisible"
-      width="40%"
-      title="设置"
-      :close-on-click-modal="false"
-    >
+    <el-dialog :visible.sync="settingsVisible" width="400px" title="设置" :close-on-click-modal="false">
       <el-form :model="settingForm" size="small">
         <el-form-item label="应用名称" prop="title">
           <el-input v-model="appTitle"></el-input>
         </el-form-item>
         <el-form-item label="默认的文件生成目录" prop="fileGenerationDirectory">
-          <el-input
-            :value="settingForm.fileGenerationDirectory"
-            readonly
-            @click.native="openDialog('fileGenerationDirectory')"
-          ></el-input>
+          <el-input :value="settingForm.fileGenerationDirectory" readonly
+                    @click.native="openDialog('fileGenerationDirectory')"></el-input>
         </el-form-item>
-        <!-- TODO主题色替换<没有实际意义搁置> -->
-        <!-- <el-form-item label="主要主题色" prop="primaryColor">
-          <el-color-picker v-model="settingForm.primaryColor"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="成功" prop="successColor">
-          <el-color-picker v-model="settingForm.successColor"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="警告" prop="warningColor">
-          <el-color-picker v-model="settingForm.warningColor"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="危险" prop="dangerColor">
-          <el-color-picker v-model="settingForm.dangerColor"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="普通信息" prop="infoColor">
-          <el-color-picker v-model="settingForm.infoColor"></el-color-picker>
-        </el-form-item> -->
       </el-form>
       <template slot="footer">
         <el-button type="primary" @click="submit">确定</el-button>
@@ -132,7 +76,7 @@
 
 <script>
 import { ipcRenderer } from 'electron'
-import { mapMutations, mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'Home',
@@ -150,6 +94,10 @@ export default {
       loading: false,
       visibleDesc: true,
       menuList: [
+        {
+          label: '模板管理',
+          path: 'TemplateManagement'
+        },
         {
           label: '前端CRUD生成',
           path: 'BuildCode'
@@ -232,6 +180,16 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    ipcRenderer.removeAllListeners('settings')
+    ipcRenderer.removeAllListeners('connection')
+    ipcRenderer.removeAllListeners('connection.success')
+    ipcRenderer.removeAllListeners('connection.failed')
+    ipcRenderer.removeAllListeners('openDirectory')
+    ipcRenderer.removeAllListeners('getSetting')
+    ipcRenderer.removeAllListeners('getDataSource')
+    ipcRenderer.removeAllListeners('about')
+  },
   watch: {
     settingForm: {
       handler (val) {
@@ -239,6 +197,11 @@ export default {
       },
       immediate: true,
       deep: true
+    },
+    visible (val) {
+      if (!val) {
+        this.$refs.datasource.resetFields()
+      }
     }
   },
   computed: {
@@ -263,9 +226,19 @@ export default {
       ipcRenderer.send('close')
     },
     async connectToTheDatabase () {
-      this.loading = true
-      ipcRenderer.send('connectToTheDatabase', this.form)
-      ipcRenderer.send('saveDataSource', this.form)
+      if (this.$refs.datasource) {
+        this.$refs.datasource.validate(valid => {
+          if (valid) {
+            this.loading = true
+            ipcRenderer.send('connectToTheDatabase', this.form)
+            ipcRenderer.send('saveDataSource', this.form)
+          }
+        })
+      } else {
+        this.loading = true
+        ipcRenderer.send('connectToTheDatabase', this.form)
+        ipcRenderer.send('saveDataSource', this.form)
+      }
     },
     jumpRoute (path, index) {
       this.$router.push({ path: '/' + path })
@@ -283,6 +256,14 @@ export default {
         title: this.appTitle
       })
       this.settingsVisible = false
+    },
+    // 导出用户数据
+    exportJSON () {
+      this.$message.success('TODO近日功能: 导出用户数据')
+    },
+    // 导入用户数据
+    importJSON () {
+      this.$message.success('TODO近日功能: 导入用户数据')
     }
   }
 }
@@ -297,7 +278,7 @@ export default {
 
   .header {
     flex-shrink: 0;
-    background: darkgray;
+    background: var(--primary);
     color: #fff;
     display: flex;
     justify-content: space-between;
@@ -310,11 +291,11 @@ export default {
       align-items: center;
       padding: 0 10px;
       cursor: pointer;
+      color: #fff;
     }
 
     .header-title:focus {
-      background: var(--primary);
-      color: #fff;
+      background: var(--danger);
     }
 
     .bar {
@@ -327,7 +308,7 @@ export default {
     }
 
     .bar:hover {
-      background: var(--primary);
+      background: var(--danger);
       color: #fff;
     }
   }

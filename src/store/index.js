@@ -19,9 +19,15 @@ export default new Vuex.Store({
     localFile: '',
     fileList: [],
     rememberKey: true,
-    kdata: []
+    kdata: [],
+
+    // 当前使用的模板<模板管理>
+    currentTemplate: null
   },
   mutations: {
+    setCurrentTemplate (state, temp) {
+      state.currentTemplate = temp
+    },
     setKdata (state, data) {
       state.kdata = data
     },

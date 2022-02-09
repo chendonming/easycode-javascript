@@ -12,6 +12,10 @@ const routes = [
       {
         path: '/BuildCode',
         component: () => import('@/views/BuildCode.vue')
+      },
+      {
+        path: '/TemplateManagement',
+        component: () => import('@/views/TemplateManagement.vue')
       }
     ]
   },

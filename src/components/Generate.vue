@@ -15,11 +15,10 @@
 <script>
 import { ipcRenderer } from 'electron'
 import tableData from '@/mix/tableData.js'
-import fileData from '@/mix/fileData.js'
 
 export default {
   name: 'Generate',
-  mixins: [tableData, fileData],
+  mixins: [tableData],
   data () {
     return {
       errorMessage: '',
@@ -59,21 +58,31 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    ipcRenderer.removeAllListeners('generateEntityFiles')
+    ipcRenderer.removeAllListeners('generateCustomFiles')
+  },
   methods: {
     generate () {
+      const template = this.$store.state.currentTemplate
+      if (!template) {
+        return this.$message.error('请在模板管理中选择一个模板')
+      }
       const table = this.tableDataHide || this.tableData
       // 组装数据
       const insertList = table.filter(v => v.operating.indexOf('insert') !== -1)
       const queryList = table.filter(v => v.operating.indexOf('query') !== -1)
       const searchList = table.filter(v => v.operating.indexOf('search') !== -1)
+      const requiredList = table.filter(v => v.operating.indexOf('required') !== -1)
       const json = {
         insertList,
         queryList,
         searchList,
+        requiredList,
         suffix: this.generateForm.suffix,
         other: this.generateForm.other,
         generateForm: this.generateForm,
-        templateName: this.localFile || this.fileList[0].raw.path,
+        templateName: template.ejs,
         name: this.generateForm.name,
         kdata: this.kdata
       }

@@ -31,10 +31,21 @@ function createWindow () {
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      webSecurity: false
     },
     show: false,
     frame: false
+  })
+
+  //= ==========自定义file:///协议的解析=======================
+  protocol.interceptFileProtocol('file', (req, callback) => {
+    const url = req.url.substr(8)
+    callback(decodeURI(url))
+  }, (error) => {
+    if (error) {
+      console.error('Failed to register protocol')
+    }
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

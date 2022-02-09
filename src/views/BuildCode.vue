@@ -3,15 +3,13 @@
     <div class="CustomBuild">
       <el-steps :active="active" simple finish-status="success">
         <el-step title="步骤 1 选择字段信息"></el-step>
-        <el-step title="步骤 2 选择模板"></el-step>
-        <el-step title="步骤 3 生成"></el-step>
+        <el-step title="步骤 2 生成"></el-step>
       </el-steps>
       <div v-show="active === 0">
         <data-source/>
         <field-table/>
       </div>
-      <choose-template v-show="active === 1"/>
-      <generate v-show="active === 2"/>
+      <generate v-show="active === 1"/>
     </div>
   </el-card>
 </template>
@@ -19,15 +17,13 @@
 <script>
 import DataSource from '@/components/DataSource.vue'
 import FieldTable from '@/components/FieldTable.vue'
-import ChooseTemplate from '@/components/ChooseTemplate.vue'
 import Generate from '@/components/Generate.vue'
 import tableData from '@/mix/tableData.js'
-import fileData from '@/mix/fileData.js'
 
 export default {
   name: 'BuildCode',
-  components: { Generate, ChooseTemplate, FieldTable, DataSource },
-  mixins: [tableData, fileData],
+  components: { Generate, FieldTable, DataSource },
+  mixins: [tableData],
   data () {
     return {
       active: 0
@@ -57,17 +53,6 @@ export default {
             message: '操作栏中至少选择一项'
           })
         }
-      } else if (this.active === 1) {
-        console.log('fileList------------>', this.fileList)
-        console.log('localFile---------->', this.localFile)
-        if (this.fileList.length === 0 && !this.localFile) {
-          this.$notify.error({
-            title: '提示',
-            message: '请选择一个ejs模板'
-          })
-        } else {
-          this.active++
-        }
       }
     }
   }
@@ -80,7 +65,7 @@ export default {
 }
 
 /deep/ .el-table__body tr.current-row > td {
-  background-color: var(--warning);
+  background-color: var(--danger);
   color: #fff;
 
   .el-button--text,

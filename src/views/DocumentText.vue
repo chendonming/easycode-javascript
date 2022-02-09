@@ -1,9 +1,7 @@
 <template>
   <div class="DocumentText">
-    <el-page-header @back="goBack" :content="title">
-    </el-page-header>
-    <article class="article article-content markdown-body"
-             style="text-align:left; padding: 20px;"
+    <el-page-header @back="goBack" :content="title"></el-page-header>
+    <article class="article article-content markdown-body" style="text-align:left; padding: 20px;"
              v-html="html"></article>
   </div>
 </template>
@@ -24,6 +22,9 @@ export default {
     title () {
       return this.$route.query.title
     }
+  },
+  beforeDestroy () {
+    ipcRenderer.removeAllListeners('consultYourDocumentation')
   },
   created () {
     const id = this.$route.query.id

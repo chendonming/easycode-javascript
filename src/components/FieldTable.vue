@@ -18,12 +18,17 @@
         <el-input v-model="scope.row.Field" size="small"></el-input>
       </template>
     </el-table-column>
-    <el-table-column prop="Comment" label="注释">
+    <el-table-column prop="Field" label="字段<驼峰>" width="120">
+      <template slot-scope="scope">
+        <span>{{camelCase(scope.row.Field)}}</span>
+      </template>
+    </el-table-column>
+    <el-table-column prop="Comment" label="注释<对应前端界面的label>">
       <template slot-scope="scope">
         <el-input v-model="scope.row.Comment" size="small"></el-input>
       </template>
     </el-table-column>
-    <el-table-column label="组件" prop="component">
+    <el-table-column label="展示组件" prop="component">
       <template slot-scope="scope">
         <el-select
           v-model="scope.row.component"
@@ -40,32 +45,39 @@
         </el-select>
       </template>
     </el-table-column>
-    <el-table-column label="操作" width="400px">
+    <el-table-column label="操作" width="500px">
       <template slot="header">
         <el-button
           @click="counterElection('insert')"
           size="small"
           type="default"
-        >反选insert
+        >反选新增表单
         </el-button>
         <el-button
           @click="counterElection('search')"
           size="small"
           type="default"
-        >反选search
+        >反选搜索表单
         </el-button>
         <el-button
           @click="counterElection('query')"
           size="small"
           type="default"
-        >反选query
+        >反选查询表单
+        </el-button>
+        <el-button
+          @click="counterElection('required')"
+          size="small"
+          type="default"
+        >反选必填项
         </el-button>
       </template>
       <template slot-scope="scope">
         <el-checkbox-group v-model="scope.row.operating">
-          <el-checkbox label="insert"></el-checkbox>
-          <el-checkbox label="search"></el-checkbox>
-          <el-checkbox label="query"></el-checkbox>
+          <el-checkbox label="insert">新增表单</el-checkbox>
+          <el-checkbox label="search">搜索表单</el-checkbox>
+          <el-checkbox label="query">查询表单</el-checkbox>
+          <el-checkbox label="required">必填</el-checkbox>
         </el-checkbox-group>
       </template>
     </el-table-column>
@@ -76,6 +88,7 @@
 import { ipcRenderer } from 'electron'
 import Sortable from 'sortablejs'
 import tableData from '@/mix/tableData.js'
+import _ from 'lodash'
 
 export default {
   name: 'FieldTable',
@@ -108,7 +121,8 @@ export default {
       if (json.code !== 200) {
         this.$notify.error(json.msg)
       } else {
-        this.tableData = json.data.map((v, i) => ({
+        const table = json.data.filter(v => v.Field.indexOf('id') === -1)
+        this.tableData = table.map((v, i) => ({
           ...v,
           operating: [],
           index: i + 1
@@ -116,10 +130,17 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    ipcRenderer.removeAllListeners('loadComponentList')
+    ipcRenderer.removeAllListeners('displayField')
+  },
   mounted () {
     this.rowDrop()
   },
   methods: {
+    camelCase (str) {
+      return _.camelCase(str)
+    },
     currentChange (row) {
       this.currentRow = row
     },

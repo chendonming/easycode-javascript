@@ -26,23 +26,24 @@
         >
           <el-option
             v-for="(item, index) in tableList"
-            :value="item"
+            :label="`${item.TABLE_NAME}${item.TABLE_COMMENT ? '-' + item.TABLE_COMMENT : ''}`"
+            :value="item.TABLE_NAME"
             :key="index"
           ></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="" prop="">
         <el-button type="warning" @click="nextStep">下一步</el-button>
-        <el-button type="success" size="small" @click="visible = true"
-        >设置属性</el-button
-        >
-        <el-checkbox
-          v-model="hideFieldsWithoutComments"
-          style="margin-left: 5px"
-        >隐藏没有注释的字段</el-checkbox
-        >
+        <el-button type="success" size="small" @click="visible = true">设置属性</el-button>
+        <el-checkbox v-model="hideFieldsWithoutComments" style="margin-left: 5px">隐藏没有注释的字段</el-checkbox>
       </el-form-item>
     </el-form>
+
+    <el-alert
+      style="margin-bottom: 10px; "
+      title="下面的table 行可按住拖拽改变顺序"
+      type="success">
+    </el-alert>
 
     <el-dialog :visible.sync="visible" title="Key Value属性列表">
       <div class="keyvalue tal">
@@ -138,6 +139,11 @@ export default {
       }
       this.tableLoading = false
     })
+  },
+  beforeDestroy () {
+    ipcRenderer.removeAllListeners('getKeyValue')
+    ipcRenderer.removeAllListeners('showDatabase')
+    ipcRenderer.removeAllListeners('queryAllTables')
   },
   watch: {
     'form.database': {
