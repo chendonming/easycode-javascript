@@ -41,7 +41,12 @@ export default new Vuex.Store({
       state.localFile = localFile
     },
     setTableData (state, tableData) {
-      state.tableData = tableData
+      state.tableData = tableData.map(v => {
+        if (!v.component) {
+          v.component = 'input'
+        }
+        return v
+      })
     },
     setTableDataHide (state, tableDataHide) {
       state.tableDataHide = tableDataHide

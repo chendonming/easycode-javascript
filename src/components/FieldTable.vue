@@ -25,7 +25,7 @@
     </el-table-column>
     <el-table-column prop="Comment" label="注释<对应前端界面的label>">
       <template slot-scope="scope">
-        <el-input v-model="scope.row.Comment" size="small"></el-input>
+        <el-input v-model="scope.row.Comment" size="small" clearable></el-input>
       </template>
     </el-table-column>
     <el-table-column label="展示组件" prop="component">
